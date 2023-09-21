@@ -8,6 +8,7 @@ CREATE TABLE USUARIO (
     nombre VARCHAR(255),
     correo VARCHAR(255),
     contrasena VARCHAR(255)
+    rol VARCHAR(50) DEFAULT 'Usuario Generico'
 );
 
 -- Crear la tabla de retroalimentación de consultas

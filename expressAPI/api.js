@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3060;
 app.use(bodyParser.json());
 
 // Clave secreta para JWT (segura)

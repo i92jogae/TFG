@@ -1,5 +1,5 @@
 import React from "react";
-import '../styles/Login.css';
+import '../styles/Register.css';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -13,15 +13,14 @@ import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import colors from "../config/config";
 import { useNavigate } from 'react-router-dom';
 
-function Login() {
-
-  const navigate = useNavigate();
-  const handleButtonRegisterClick = () => {
-    navigate('/register');
-  };
-  const handleLogoClick = () => {
-    navigate('/');
-  };
+function Register() {
+    const navigate = useNavigate();
+    const handleButtonLoginClick = () => {
+        navigate('/login');
+    };
+    const handleLogoClick = () => {
+        navigate('/');
+    };
 
     return (
       <Box sx={{height:'100%'}}>
@@ -86,18 +85,18 @@ function Login() {
             alignItems:'center'
           }}>
             <Box sx={{display:'flex', flexDirection:'row'}}>
-              <Typography variant="h3" sx={{mt:'110px',color:'white', fontWeight:'600',display:'flex', alignItems:'center'}}>
+              <Typography variant="h3" sx={{mt:'140px',color:'white', fontWeight:'600',display:'flex', alignItems:'center'}}>
                 Bienvenido <EmojiPeopleIcon sx={{ml:'10px' ,fontSize:50, color:'white'}}/>  
               </Typography>
 
             </Box>
-            <Typography variant="h6" sx={{mt:'146.5px', mb:'15px', color:'white'}}>¿Todavía sin cuenta? Regístrate ya</Typography>
-            <Button onClick={handleButtonRegisterClick} variant="contained" sx={{ width:'100%', background:'white', textTransform:'none', color:colors.blue, "&:hover": {background:'white', boxShadow:6}}}>
-              <Typography sx={{fontWeight:'500'}}>Registrarse</Typography>
+            <Typography variant="h6" sx={{mt:'188.5px', mb:'15px', color:'white'}}>¿Ya estás registrado? Inicia sesión aquí</Typography>
+            <Button onClick={handleButtonLoginClick} variant="contained" sx={{ width:'100%', background:'white', textTransform:'none', color:colors.blue, "&:hover": {background:'white', boxShadow:6}}}>
+              <Typography sx={{fontWeight:'500'}}>Iniciar sesión</Typography>
             </Button>
           </Box>
           <Box component="form" sx={{
-            padding: '30px 50px 50px',
+            padding: '30px 60px 50px',
             background: 'white',
             boxShadow: '10',
             display: 'flex',
@@ -110,8 +109,9 @@ function Login() {
               flexDirection: 'column', 
             }}>
               <AccountCircleIcon sx={{ color: colors.blue, fontSize: 120, mb: '10px', }} />
-              <Typography variant="h3" sx={{color: colors.blue}}>Iniciar Sesión</Typography>
+              <Typography variant="h3" sx={{color: colors.blue}}>Crear cuenta</Typography>
             </Box>
+            <TextField sx={{color:colors.blue}} fullWidth margin="normal" required id="username" label="Nombre de usuario" variant="standard" />
             <TextField sx={{color:colors.blue}} fullWidth margin="normal" required id="user" label="Email" variant="standard" />
             <TextField sx={{color:colors.blue}} fullWidth margin="normal" required id="password" type="password" label="Contraseña" variant="standard" />
             <Button variant="contained" sx={{mt:'30px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
@@ -124,4 +124,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Register;

@@ -1,4 +1,5 @@
-import React from "react";
+import {React, useState} from "react";
+import axios from "axios";
 import '../styles/Login.css';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -10,10 +11,57 @@ import Button from '@mui/material/Button';
 import StorageIcon from '@mui/icons-material/Storage';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import colors from "../config/config";
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    const email = document.getElementById("user").value;
+    const password = document.getElementById("password").value;
+    if (email==="" || password==="") {
+      setError("Debe introducir su email y contraseña");
+    } else {
+      console.log(email,password);
+      // Realiza la solicitud POST a la ruta de inicio de sesión en tu API utilizando Axios
+      axios.post('http://localhost:3060/login', {
+        correo: email,
+        contrasena: password,
+      }, {
+        headers:{
+          'Content-Type':'application/json'
+        }
+      })
+      .then(function (response) {
+        // La solicitud fue exitosa, obtén el token y guárdalo en localStorage
+        const data = response.data;
+        localStorage.setItem("token", data.token);
+        // Redirige al usuario a la página protegida o realiza cualquier otra acción
+        window.location.href = "/"; // Ajusta la redirección según tus necesidades
+      })
+      .catch(function (error) {
+        console.log(error);
+        if (error.response) {
+          // Si hay una respuesta del servidor
+          if (error.response.status === 401) {
+            // Código de error 401 (No autorizado)
+            setError("Email o contraseña incorrectos");
+          } else if (error.response.status === 500) {
+            // Código de error 500 (Error interno del servidor)
+            alert("Ha ocurrido un error interno del servidor. Por favor, inténtalo de nuevo más tarde.");
+          } else {
+            // Otros códigos de error
+            alert("Ha ocurrido un error. Por favor, inténtalo de nuevo.");
+          }
+        } else {
+          // Error de red u otro tipo de error
+          alert("Ha ocurrido un error. Por favor, inténtalo de nuevo.");
+        }
+      });
+    }
+  };
 
   const navigate = useNavigate();
   const handleButtonRegisterClick = () => {
@@ -98,6 +146,7 @@ function Login() {
           </Box>
           <Box component="form" sx={{
             padding: '30px 50px 50px',
+            width: '370px',
             background: 'white',
             boxShadow: '10',
             display: 'flex',
@@ -114,7 +163,12 @@ function Login() {
             </Box>
             <TextField sx={{color:colors.blue}} fullWidth margin="normal" required id="user" label="Email" variant="standard" />
             <TextField sx={{color:colors.blue}} fullWidth margin="normal" required id="password" type="password" label="Contraseña" variant="standard" />
-            <Button variant="contained" sx={{mt:'30px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
+            {error && (
+              <Typography sx={{ color: '#e57373', mb:'0', display:'flex', alignItems:'center'}}>
+                <ErrorOutlineIcon sx={{mr:'5px'}}/>{error}
+              </Typography>
+            )}
+            <Button variant="contained" onClick={handleLogin} sx={{mt:'30px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
               <Typography sx={{fontWeight:'500'}}>Aceptar</Typography>
             </Button>
           </Box>

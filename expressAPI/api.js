@@ -4,11 +4,15 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
 const dotenv = require('dotenv');
+const cors = require('cors');
+const axios = require('axios');
+const OpenAI = require('openai');
 
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3060;
 app.use(bodyParser.json());
+app.use(cors());
 
 // Clave secreta para JWT (segura)
 const secretKey = process.env.SECRET_KEY;
@@ -113,6 +117,23 @@ app.post('/login', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error' });
   }
+});
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
+});
+// Consultas OpenAI
+app.post('/sendqueryIA', async (req, res) => {
+  const { query } = req.body; // Obtén la consulta del cuerpo de la solicitud
+
+  // Realiza una solicitud a la API de ChatGPT utilizando Axios o tu método preferido
+  const chatGptResponse = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [{role:'user' ,content: query}],
+  })
+  // Devuelve la respuesta de ChatGPT al frontend
+  console.log(chatGptResponse.choices[0].message.content);
+  res.json(chatGptResponse.choices[0].message.content);
 });
 
 // Ruta protegida

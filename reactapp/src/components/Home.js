@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import jwt_decode from "jwt-decode";
 import colors from "../config/config";
 import { useNavigate } from "react-router-dom";
 import '../styles/Home.css';
@@ -31,8 +32,14 @@ function Home() {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+  let nameUser = "";
 
-/*   function isUserAuthenticated() {
+  const logout = () => {
+    localStorage.removeItem('token');
+    window.location.reload();
+  }
+
+  function isUserAuthenticated() {
     const token = localStorage.getItem('token'); // Otra forma de obtener el token almacenado
   
     if (!token) {
@@ -40,17 +47,17 @@ function Home() {
     }
   
     try {
-      const decodedToken = jwt.decode(token);
-  
+      const decodedToken = jwt_decode(token);
       // Comprobar si el token ha expirado
       if (decodedToken.exp < Date.now() / 1000) {
         return false; // El token ha expirado
       }
+      nameUser=decodedToken.nombre;
       return true; // El token es válido y no ha expirado
     } catch (error) {
       return false; // Error al decodificar el token
     }
-  } */
+  } 
 
   const handleButtonLoginClick = () => {
     navigate('/login');
@@ -58,6 +65,22 @@ function Home() {
   const handleButtonRegisterClick = () => {
     navigate('/register');
   };
+  const handleButtonConsultarIA = () => {
+    navigate('/consultIA');
+  };
+  const handleButtonMisConsultas = () => {
+    navigate('/myconsults');
+  };
+  const handleButtonRealizarTest = () => {
+    navigate('/testIA');
+  };
+  const handleButtonMisResultados = () => {
+    navigate('/myresults');
+  };
+  const handleMiPerfil = () => {
+    navigate('/myprofile');
+  }
+  
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -73,7 +96,7 @@ function Home() {
     setAnchorElUser(null);
   };
   
-  if (0) {
+  if (isUserAuthenticated()) {
     return (
       <Box style={{height:'100%', margin: 0, backgroundImage: `url(${fondo_final})`, backgroundSize:'cover', }}>
         <AppBar position="static" sx={{background:colors.backgroundMenu}}>
@@ -127,19 +150,19 @@ function Home() {
                     display: { xs: 'block', md: 'none' },
                   }}
                 >
-                  <MenuItem key='Consultar IA' onClick={handleCloseNavMenu} >
+                  <MenuItem key='Consultar IA' onClick={() => {handleCloseNavMenu(); handleButtonConsultarIA();}} >
                     <SearchIcon color="primary" sx={{mr:'6px'}}/>
                     <Typography textAlign="center">Consultar IA</Typography>
                   </MenuItem>
-                  <MenuItem key='Mis consultas' onClick={handleCloseNavMenu}>
+                  <MenuItem key='Mis consultas' onClick={() => {handleCloseNavMenu(); handleButtonMisConsultas();}}>
                     <QuestionAnswerIcon color="primary" sx={{mr:'6px'}}/>
                     <Typography textAlign="center">Mis consultas</Typography>
                   </MenuItem>
-                  <MenuItem key='Realizar test' onClick={handleCloseNavMenu}>
+                  <MenuItem key='Realizar test' onClick={() => {handleCloseNavMenu(); handleButtonRealizarTest();}}>
                     <PlaylistAddCheckCircleIcon color="primary" sx={{mr:'6px'}}/> 
                     <Typography textAlign="center">Realizar test</Typography>
                   </MenuItem>
-                  <MenuItem key='Mis resultados' onClick={handleCloseNavMenu}>
+                  <MenuItem key='Mis resultados' onClick={() => {handleCloseNavMenu(); handleButtonMisResultados();}}>
                     <TaskAltIcon color="primary" sx={{mr:'6px'}}/>
                     <Typography textAlign="center">Mis resultados</Typography>
                   </MenuItem>
@@ -168,6 +191,7 @@ function Home() {
                   <Button
                     variant="filledTonal"
                     key='Consultar IA'
+                    onClick={handleButtonConsultarIA}
                     startIcon={<SearchIcon />}
                     sx={{ height:'68.45px',color: 'white', display: 'inlineBlock', "&:hover": {
                       borderBottom: "3px solid white", borderRadius: "0"}
@@ -179,6 +203,7 @@ function Home() {
                   <Button
                     variant="filledTonal"
                     key='Mis consultas'
+                    onClick={handleButtonMisConsultas}
                     startIcon={<QuestionAnswerIcon />}
                     sx={{ color: 'white', display: 'inlineBlock', "&:hover": {
                       borderBottom: "3px solid white", borderRadius: "0"}
@@ -190,6 +215,7 @@ function Home() {
                   <Button
                     variant="filledTonal"
                     key='Realizar test'
+                    onClick={handleButtonRealizarTest}
                     startIcon={<PlaylistAddCheckCircleIcon />}
                     sx={{ color: 'white', display: 'inlineBlock', "&:hover": {
                       borderBottom: "3px solid white", borderRadius: "0"}
@@ -201,6 +227,7 @@ function Home() {
                   <Button
                     variant="filledTonal"
                     key='Mis resultados'
+                    onClick={handleButtonMisResultados}
                     startIcon={<TaskAltIcon />}
                     sx={{ color: 'white', display: 'inlineBlock',mr:'12px', "&:hover": {
                       borderBottom: "3px solid white", borderRadius: "0"}
@@ -214,7 +241,7 @@ function Home() {
               <Box sx={{ flexGrow: 0}}>
                 <Tooltip title="Abrir ajustes">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0.5, borderRadius:'10px',":hover": {background:'none'}}}>
-                    <Typography  sx={{color:'white'}}>NombreUsuario</Typography>
+                    <Typography  sx={{color:'white'}}>{nameUser}</Typography>
                     <PersonIcon  color="primary" sx={{color: 'white', ml:'7px', border:'2px solid white',padding:'2px', borderRadius:'45px'}}/>
                   </IconButton>
                 </Tooltip>
@@ -234,11 +261,11 @@ function Home() {
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                 >
-                  <MenuItem key={'Mi perfil'} onClick={handleCloseUserMenu}>
+                  <MenuItem key={'Mi perfil'} onClick={() => { handleMiPerfil(); handleCloseUserMenu();}}>
                     <ManageAccountsOutlinedIcon color="primary" sx={{mr:'5px'}}/>
                     <Typography textAlign="center">Mi perfil</Typography>
                   </MenuItem>
-                  <MenuItem key={'Cerrar sesión'} onClick={handleCloseUserMenu}>
+                  <MenuItem key={'Cerrar sesión'} onClick={() => { logout(); handleCloseUserMenu(); }}>
                     <LogoutIcon sx={{color:'IndianRed', mr:'5px'}}/>
                     <Typography textAlign="center">Cerrar sesión</Typography>
                   </MenuItem>  

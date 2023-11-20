@@ -5,7 +5,7 @@ import MenuDB from "./Menu";
 function TestIA() {
 
     return (
-        <Box style={{height:'100%', margin: 0, }}>
+        <Box sx={{height:'100%', margin: 0, }}>
             <MenuDB />
         
         </Box>

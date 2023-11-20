@@ -49,6 +49,9 @@ function MenuDB() {
     const handleButtonMisResultados = () => {
         navigate('/myresults');
     };
+    const handleMiPerfil = () => {
+        navigate('/myprofile');
+    };
     
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -66,7 +69,7 @@ function MenuDB() {
     };
     
     return (
-        <AppBar position="static" sx={{background:colors.backgroundMenu}}>
+        <AppBar position="static" sx={{ background:colors.backgroundMenu}}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <StorageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1.5 }} />
@@ -229,7 +232,7 @@ function MenuDB() {
                         open={Boolean(anchorElUser)}
                         onClose={handleCloseUserMenu}
                     >
-                        <MenuItem key={'Mi perfil'} onClick={handleCloseUserMenu}>
+                        <MenuItem key={'Mi perfil'} onClick={() => {handleCloseUserMenu(); handleMiPerfil();}}>
                         <ManageAccountsOutlinedIcon color="primary" sx={{mr:'5px'}}/>
                         <Typography textAlign="center">Mi perfil</Typography>
                         </MenuItem>

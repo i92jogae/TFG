@@ -89,7 +89,7 @@ app.post('/login', async (req, res) => {
     const { correo, contrasena } = req.body;
 
     // Comprobación de login
-    db.query('SELECT * FROM USUARIO WHERE correo = ?', [correo], async (error, results) => {
+    db.query('SELECT * FROM usuario WHERE correo = ?', [correo], async (error, results) => {
       if (error) {
         console.error('Error retrieving user from database:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
@@ -101,14 +101,14 @@ app.post('/login', async (req, res) => {
       }
 
       // Usuario existe en bd -> Comprobación de contraseña
-      const passwordMatch = await bcrypt.compare(contrasena, results[0].CONTRASENA);
+      const passwordMatch = await bcrypt.compare(contrasena, results[0].contrasena);
 
       if (!passwordMatch) {
         return res.status(401).json({ message: 'Authentication failed' });
       }
       else{console.log("Inicio de sesion correcto");}
       // Generación del JWT token para la sesión
-      const token = jwt.sign({ id: results[0].ID, nombre: results[0].NOMBRE, correo: results[0].CORREO }, secretKey, {
+      const token = jwt.sign({ id: results[0].id, nombre: results[0].nombre, correo: results[0].correo }, secretKey, {
         expiresIn: '1h', // Token expires in 1 hour
       });
 
@@ -122,6 +122,7 @@ app.post('/login', async (req, res) => {
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
 });
+
 // Consultas OpenAI
 app.post('/sendqueryIA', async (req, res) => {
   const { query } = req.body; // Obtén la consulta del cuerpo de la solicitud
@@ -132,8 +133,119 @@ app.post('/sendqueryIA', async (req, res) => {
     messages: [{role:'user' ,content: query}],
   })
   // Devuelve la respuesta de ChatGPT al frontend
-  console.log(chatGptResponse.choices[0].message.content);
   res.json(chatGptResponse.choices[0].message.content);
+});
+
+//Guardado de consultas
+app.post('/saveConversation', async (req, res) => {
+  try {
+    const { usuario_id, consulta, respuesta } = req.body;
+
+    // Inserta la conversación en la tabla de retroalimentación
+    db.query(
+      'INSERT INTO RETROALIMENTACION (usuario_id, consulta, respuesta) VALUES (?, ?, ?)',
+      [usuario_id, consulta, respuesta],
+      (error) => {
+        if (error) {
+          console.error('Error inserting conversation:', error);
+          return res.status(500).json({ message: 'Internal Server Error' });
+        }
+        res.status(201).json({ message: 'Conversation saved successfully' });
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+//Devolución de consultas
+app.get('/userConsults', (req, res) => {
+  const usuario_id = req.query.usuario_id; 
+  // Obtener consultas del usuario desde la base de datos
+  db.query('SELECT consulta, respuesta, fecha FROM RETROALIMENTACION WHERE usuario_id = ? ORDER BY fecha DESC', [usuario_id], (error, results) => {
+    if (error) {
+      console.error('Error retrieving user consultations:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+//Devolución de datos usuario
+app.get('/userData', (req,res) => {
+  const usuario_id = req.query.usuario_id;
+  db.query('SELECT nombre, correo FROM USUARIO WHERE id = ?', [usuario_id], (error, results) => {
+    if (error) {
+      console.error('Error retrieving user consultations:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+
+// Ruta para editar nombre de usuario
+app.put('/editUsername', async (req, res) => {
+  try {
+    const { usuario_id, nuevo_nombre } = req.body;
+
+    // Obtiene el nombre actual del usuario
+    db.query('SELECT nombre FROM USUARIO WHERE id = ?', [usuario_id], async (error, results) => {
+      if (error) {
+        console.error('Error retrieving current username:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+      }
+
+      // Comprueba si el nuevo nombre es igual al actual
+      if (nuevo_nombre === results[0].nombre) {
+        return res.status(400).json({ error: 'El nuevo nombre es igual al actual' });
+      }
+
+      // Actualiza el nombre de usuario en la base de datos
+      db.query('UPDATE USUARIO SET nombre = ? WHERE id = ?', [nuevo_nombre, usuario_id], (error) => {
+        if (error) {
+          console.error('Error updating username:', error);
+          return res.status(500).json({ message: 'Internal Server Error' });
+        }
+        res.status(200).json({ message: 'Username updated successfully' });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Ruta para editar contraseña
+app.put('/editPassword', async (req, res) => {
+  try {
+    const { usuario_id, nueva_contrasena } = req.body;
+
+    // Obtiene la contraseña actual del usuario
+    db.query('SELECT contrasena FROM USUARIO WHERE id = ?', [usuario_id], async (error, results) => {
+      if (error) {
+        console.error('Error retrieving current password:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+      }
+
+      // Comprueba si la nueva contraseña es igual a la actual
+      const passwordMatch = await bcrypt.compare(nueva_contrasena, results[0].contrasena);
+      if (passwordMatch) {
+        return res.status(400).json({ error: 'La nueva contraseña es igual a la actual' });
+      }
+
+      // Hashea la nueva contraseña
+      const hashedPassword = await bcrypt.hash(nueva_contrasena, 10);
+
+      // Actualiza la contraseña en la base de datos
+      db.query('UPDATE USUARIO SET contrasena = ? WHERE id = ?', [hashedPassword, usuario_id], (error) => {
+        if (error) {
+          console.error('Error updating password:', error);
+          return res.status(500).json({ message: 'Internal Server Error' });
+        }
+        res.status(200).json({ message: 'Password updated successfully' });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 // Ruta protegida

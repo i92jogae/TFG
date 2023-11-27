@@ -1,11 +1,14 @@
 import React, { useState,useEffect } from "react";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-import MenuDB from "./Menu";
+import MenuDB from "../components/Menu";
 import colors from "../config/config";
-import { Box, Divider, IconButton, List, ListItem, Modal, Typography, Fade, Backdrop, TextField, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide } from "@mui/material";
+import { Box, Divider, IconButton, List, ListItem, Modal, Typography, Fade, Backdrop, TextField, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide, FormControl, InputLabel, Input, InputAdornment } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import ContactPageOutlinedIcon from '@mui/icons-material/ContactPageOutlined';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const style = {
     position: 'absolute',
@@ -29,6 +32,7 @@ function MyProfile() {
     const [modalNombreAbierto, setModalNombreAbierto] = useState(false);
     const [modalPassAbierto, setModalPassAbierto] = useState(false);
     const [datosUsuario, setDatosUsuario] = useState({});
+    const [mostrarContraseña, setMostrarContraseña] = useState(false);
 
     useEffect(() => {
         axios.get(`http://localhost:3060/userData?usuario_id=${jwt_decode(localStorage.getItem('token')).id}`,{
@@ -59,6 +63,10 @@ function MyProfile() {
         setModalPassAbierto(false);
         setError("");
     }
+
+    const handleClickMostrarContraseña = () => {
+        setMostrarContraseña((show) => !show);
+    };
 
     const handleSubmitNombre = () => {
         const nombre = document.getElementById("username").value; 
@@ -133,7 +141,7 @@ function MyProfile() {
                 keepMounted
                 onClose={handleCloseDialogAlert}
                 aria-describedby="alert-dialog-edited"
-                fullWidth="true"
+                fullWidth
                 maxWidth="sm"
                 >
                 <DialogTitle color={colors.blue} >{"Se ha modificado con éxito"}</DialogTitle>
@@ -151,8 +159,8 @@ function MyProfile() {
                 </DialogActions>
             </Dialog>
             <MenuDB />
-            <Box sx={{display:'flex',mt:'70px', justifyContent:'center',}}>
-                <Box sx={{display:'flex',flexDirection:'column', gap:'20px', width:'50%', backgroundColor:'white',pt:'30px', pl:'40px', pr:'40px', pb:'10px', borderRadius:'10px', border:'1px solid rgba(0, 0, 0, 0.17)'}}>
+            <Box sx={{ display:'flex',mt:'10vh', justifyContent:'center',}}>
+                <Box sx={{ display:'flex',flexDirection:'column', gap:'17px', width:'50%', backgroundColor:'white',pt:'30px', pl:'40px', pr:'40px', pb:'10px', borderRadius:'10px', border:'1px solid rgba(0, 0, 0, 0.17)'}}>
                     <Modal
                         open={modalNombreAbierto}
                         closeAfterTransition
@@ -195,10 +203,25 @@ function MyProfile() {
                     >
                         <Fade in={modalPassAbierto}>
                             <Box sx={style}>
-                                <Typography color={colors.blue} variant="h5" >
+                                <Typography mb="20px" color={colors.blue} variant="h5" >
                                     Editar contraseña
                                 </Typography>
-                                <TextField sx={{mt:'20px', color:colors.blue}} fullWidth id="password" label="Nueva contraseña" variant="standard" />
+                                <FormControl fullWidth required variant="standard">
+                                    <InputLabel>Contraseña</InputLabel>
+                                    <Input
+                                        id="password"
+                                        type={mostrarContraseña ? 'text' : 'password'}
+                                        endAdornment={
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={handleClickMostrarContraseña}
+                                                >
+                                                    {mostrarContraseña ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        }
+                                    />
+                                </FormControl>
                                 {error && (
                                     <Typography sx={{ color: '#e57373',  mt:'10px', display:'flex', alignItems:'center'}}>
                                         <ErrorOutlineIcon sx={{mr:'5px'}}/>{error}
@@ -213,29 +236,35 @@ function MyProfile() {
                             </Box>
                         </Fade>
                     </Modal>
-                    <Typography variant="h3" fontWeight="Light" color={colors.blueSecondary}>Información personal</Typography>
+                    <Typography variant="h3" fontSize="7vh" fontWeight="Light" color={colors.blue} sx={{display:'flex',flexDirection:'row', alignItems:'end', gap:'10px',}}>
+                        Información personal
+                        <ContactPageOutlinedIcon sx={{fontSize:'44px'}}/>
+                    </Typography>
+                    <Typography ml="10px" fontWeight="Regular" color="#607d8b" fontSize="2.8vh">
+                        Tu información personal será totalmente privada y siempre estará protegida. Además podrás gestionarla cuando lo desees.
+                    </Typography>
                     <List sx={{width:'100%' }}>
-                        <ListItem sx={{mb:'10px'}} secondaryAction=
+                        <ListItem sx={{mb:'1%'}} secondaryAction=
                             {<IconButton edge="end" onClick={handleOpenModalNombre}>
                                 <EditIcon/>
                             </IconButton>}
                         >
-                            <Typography width="221px" fontSize="large" color={colors.blue}>Nombre de usuario</Typography>
-                            <Typography fontWeight="medium" color="#607d8b">{datosUsuario[0]?.nombre}</Typography>
+                            <Typography width="221px" fontSize="2.8vh" color={colors.blue}>Nombre de usuario</Typography>
+                            <Typography fontWeight="medium" fontSize="2.8vh" color="#607d8b">{datosUsuario[0]?.nombre}</Typography>
                         </ListItem>
                         <Divider />
-                        <ListItem sx={{mt:'10px', mb:'10px'}} >
-                            <Typography width="221px" fontSize="large" color={colors.blue}>Email</Typography>
-                            <Typography fontWeight="medium" color="#607d8b">{datosUsuario[0]?.correo}</Typography>
+                        <ListItem sx={{mt:'1%', mb:'10px'}} >
+                            <Typography width="221px" fontSize="2.8vh" color={colors.blue}>Email</Typography>
+                            <Typography fontWeight="medium" fontSize="2.8vh" color="#607d8b">{datosUsuario[0]?.correo}</Typography>
                         </ListItem>
                         <Divider />
-                        <ListItem sx={{mt:'10px'}} secondaryAction=
+                        <ListItem sx={{mt:'1%'}} secondaryAction=
                             {<IconButton edge="end" onClick={handleOpenModalPass}>
                                 <EditIcon />
                             </IconButton>}
                         >
-                            <Typography width="221px" fontSize="large" color={colors.blue}>Contraseña</Typography>
-                            <Typography fontWeight="medium" color="#607d8b">***********</Typography>
+                            <Typography width="221px" fontSize="2.8vh" color={colors.blue}>Contraseña</Typography>
+                            <Typography fontWeight="medium" fontSize="2.8vh" color="#607d8b">***********</Typography>
                         </ListItem>
                     </List>
                 </Box>

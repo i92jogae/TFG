@@ -12,11 +12,15 @@ import StorageIcon from '@mui/icons-material/Storage';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import colors from "../config/config";
 import { useNavigate } from 'react-router-dom';
+import { FormControl, IconButton, Input, InputAdornment, InputLabel } from "@mui/material";
 
 function Login() {
   const [error, setError] = useState("");
+  const [mostrarContraseña, setMostrarContraseña] = useState(false);
 
   const handleLogin = async () => {
     const email = document.getElementById("user").value;
@@ -71,46 +75,57 @@ function Login() {
     navigate('/');
   };
 
+  const handleClickMostrarContraseña = () => {
+    setMostrarContraseña((show) => !show);
+  };
+
     return (
       <Box sx={{height:'100%'}}>
         <AppBar position="static" sx={{background:colors.backgroundMenu}}>
           <Container maxWidth="xl">
             <Toolbar disableGutters>
-              <StorageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1.5 }} />
+              <StorageIcon sx={{ fontSize:'1.3rem', display: { xs: 'none', md: 'flex' }, mr: 1.5 }} />
               <Typography
                 variant="h5"
                 noWrap
                 component="a"
                 onClick={handleLogoClick}
-                href="#app-bar-with-responsive-menu"
                 sx={{
                   display: { xs: 'none', md: 'flex' },
                   mr: 5,
+                  fontSize:'1.3rem', 
                   fontWeight: 700,
                   fontFamily: 'monospace',
                   letterSpacing: '.3rem',
                   color: 'inherit',
                   textDecoration: 'none',
+                  '&:hover': {
+                    cursor: 'pointer', 
+                  },
                 }}
               >
                 DBLEARNING
               </Typography>
 
-              <StorageIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+              <StorageIcon sx={{fontSize:'1.3rem',  display: { xs: 'flex', md: 'none' }, mr: 1 }} />
               <Typography
                 variant="h5"
                 noWrap
                 component="a"
-                href="#app-bar-with-responsive-menu"
+                onClick={handleLogoClick}
                 sx={{
                   mr: 2,
                   display: { xs: 'flex', md: 'none' },
                   flexGrow: 1,
+                  fontSize:'1.3rem', 
                   fontFamily: 'monospace',
                   fontWeight: 700,
                   letterSpacing: '.3rem',
                   color: 'inherit',
                   textDecoration: 'none',
+                  '&:hover': {
+                    cursor: 'pointer', 
+                  },
                 }}
               >
                 DBLEARNING
@@ -122,30 +137,30 @@ function Login() {
           display: 'flex',
           justifyContent: 'center',
           alignContent: 'center',
-          padding:'50px'
+          padding:'35px'
         }}>
           <Box component="form" sx={{
             zIndex:1,
-            padding: '30px 50px 50px',
+            padding: '20px 40px 40px',
             background: colors.blue,
             boxShadow: '10',
-            display: 'flex',
+            display: {xs:'none', md:'flex'},
             flexDirection: 'column', 
             alignItems:'center'
           }}>
             <Box sx={{display:'flex', flexDirection:'row'}}>
-              <Typography variant="h3" sx={{mt:'110px',color:'white', fontWeight:'600',display:'flex', alignItems:'center'}}>
+              <Typography variant="h3" sx={{mt:'18vh', fontSize:'8vh', color:'white', fontWeight:'400',display:'flex', alignItems:'center'}}>
                 Bienvenido <EmojiPeopleIcon sx={{ml:'10px' ,fontSize:50, color:'white'}}/>  
               </Typography>
 
             </Box>
-            <Typography variant="h6" sx={{mt:'146.5px', mb:'15px', color:'white'}}>¿Todavía sin cuenta? Regístrate ya</Typography>
+            <Typography variant="h6" sx={{mt:'19.5vh', mb:'15px', color:'white'}}>¿Todavía sin cuenta? Regístrate ya</Typography>
             <Button onClick={handleButtonRegisterClick} variant="contained" sx={{ width:'100%', background:'white', textTransform:'none', color:colors.blue, "&:hover": {background:'white', boxShadow:6}}}>
               <Typography sx={{fontWeight:'500'}}>Registrarse</Typography>
             </Button>
           </Box>
           <Box component="form" sx={{
-            padding: '30px 50px 50px',
+            padding: '20px 40px 40px',
             width: '370px',
             background: 'white',
             boxShadow: '10',
@@ -158,14 +173,29 @@ function Login() {
               alignItems: 'center', 
               flexDirection: 'column', 
             }}>
-              <AccountCircleIcon sx={{ color: colors.blue, fontSize: 120, mb: '10px', }} />
-              <Typography variant="h3" sx={{color: colors.blue}}>Iniciar Sesión</Typography>
+              <AccountCircleIcon sx={{ color: colors.blue, fontSize: '17vh', mb: '10px', }} />
+              <Typography variant="h3" sx={{color: colors.blue, fontSize:'8vh'}}>Iniciar Sesión</Typography>
             </Box>
-            <TextField sx={{color:colors.blue}} fullWidth margin="normal" required id="user" label="Email" variant="standard" />
-            <TextField sx={{color:colors.blue}} fullWidth margin="normal" required id="password" type="password" label="Contraseña" variant="standard" />
+            <TextField sx={{color:colors.blue, mt:'1.7vh'}} fullWidth required id="user" label="Email" variant="standard" />
+            <FormControl sx={{mt:'1.7vh', mb:'1.7vh'}}  fullWidth required variant="standard">
+              <InputLabel>Contraseña</InputLabel>
+                <Input
+                  id="password"
+                  type={mostrarContraseña ? 'text' : 'password'}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleClickMostrarContraseña}
+                      >
+                        {mostrarContraseña ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+            </FormControl>
             {error && (
-              <Typography sx={{ color: '#e57373', mb:'0', display:'flex', alignItems:'center'}}>
-                <ErrorOutlineIcon sx={{mr:'5px'}}/>{error}
+              <Typography sx={{ fontSize:'2.7vh', color: '#e57373', mb:'0', display:'flex', alignItems:'center'}}>
+                <ErrorOutlineIcon sx={{mr:'5px', fontSize:'4vh'}}/>{error}
               </Typography>
             )}
             <Button variant="contained" onClick={handleLogin} sx={{mt:'30px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>

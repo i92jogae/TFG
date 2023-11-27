@@ -18,8 +18,11 @@ import StorageIcon from '@mui/icons-material/Storage';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import colors from "../config/config";
 import { useNavigate } from 'react-router-dom';
+import { FormControl, IconButton, Input, InputAdornment, InputLabel } from "@mui/material";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -28,6 +31,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 function Register() {
     const [error, setError] = useState('');
     const [registered, setRegistered] = useState(false);
+    const [mostrarContraseña, setMostrarContraseña] = useState(false);
 
     const handleCloseDialogAlert = () => {
       setRegistered(false);
@@ -58,8 +62,6 @@ function Register() {
         })
         .then(function (response) {
           setRegistered(true);
-          /* alert("Se ha registrado correctamente, haz click para continuar");
-          navigate('/login'); */
         })
         .catch(function (error) {
           console.log(error);
@@ -91,6 +93,10 @@ function Register() {
         navigate('/');
     };
 
+    const handleClickMostrarContraseña = () => {
+      setMostrarContraseña((show) => !show);
+    };
+
     return (
       <Box sx={{height:'100%'}}>
         <Dialog
@@ -99,7 +105,7 @@ function Register() {
           keepMounted
           onClose={handleCloseDialogAlert}
           aria-describedby="alert-dialog-slide-description"
-          fullWidth="true"
+          fullWidth
           maxWidth="sm"
         >
           <DialogTitle color={colors.blue} >{"Se ha registrado con éxito"}</DialogTitle>
@@ -119,14 +125,14 @@ function Register() {
         <AppBar position="static" sx={{background:colors.backgroundMenu}}>
           <Container maxWidth="xl">
             <Toolbar disableGutters>
-              <StorageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1.5 }} />
+              <StorageIcon sx={{ fontSize:'1.3rem', display: { xs: 'none', md: 'flex' }, mr: 1.5 }} />
               <Typography
                 variant="h5"
                 noWrap
                 component="a"
                 onClick={handleLogoClick}
-                href="#app-bar-with-responsive-menu"
                 sx={{
+                  fontSize:'1.3rem', 
                   display: { xs: 'none', md: 'flex' },
                   mr: 5,
                   fontWeight: 700,
@@ -134,18 +140,22 @@ function Register() {
                   letterSpacing: '.3rem',
                   color: 'inherit',
                   textDecoration: 'none',
+                  '&:hover': {
+                    cursor: 'pointer', 
+                  },
                 }}
               >
                 DBLEARNING
               </Typography>
 
-              <StorageIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+              <StorageIcon sx={{ fontSize:'1.3rem', display: { xs: 'flex', md: 'none' }, mr: 1 }} />
               <Typography
                 variant="h5"
                 noWrap
                 component="a"
-                href="#app-bar-with-responsive-menu"
+                onClick={handleLogoClick}
                 sx={{
+                  fontSize:'1.3rem', 
                   mr: 2,
                   display: { xs: 'flex', md: 'none' },
                   flexGrow: 1,
@@ -154,6 +164,9 @@ function Register() {
                   letterSpacing: '.3rem',
                   color: 'inherit',
                   textDecoration: 'none',
+                  '&:hover': {
+                    cursor: 'pointer', 
+                  },
                 }}
               >
                 DBLEARNING
@@ -165,30 +178,36 @@ function Register() {
           display: 'flex',
           justifyContent: 'center',
           alignContent: 'center',
-          padding:'50px'
+          padding:'30px'
         }}>
           <Box component="form" sx={{
             zIndex:1,
-            padding: '30px 50px 50px',
+            pt:'20px',
+            pb:'30px',
+            pr:'45px',
+            pl:'45px',
             background: colors.blue,
             boxShadow: '10',
-            display: 'flex',
+            display: {xs:'none', md:'flex'},
             flexDirection: 'column', 
             alignItems:'center'
           }}>
             <Box sx={{display:'flex', flexDirection:'row'}}>
-              <Typography variant="h3" sx={{mt:'140px',color:'white', fontWeight:'600',display:'flex', alignItems:'center'}}>
+              <Typography variant="h3" sx={{mt:'17vh', fontSize:'8vh',color:'white', fontWeight:'400',display:'flex', alignItems:'center'}}>
                 Bienvenido <EmojiPeopleIcon sx={{ml:'10px' ,fontSize:50, color:'white'}}/>  
               </Typography>
 
             </Box>
-            <Typography variant="h6" sx={{mt:'168.5px', mb:'15px', color:'white'}}>¿Ya estás registrado? Inicia sesión aquí</Typography>
+            <Typography variant="h6" sx={{mt:'26.8vh', fontSize:'3vh' ,mb:'1.7vh', color:'white'}}>¿Ya estás registrado? Inicia sesión aquí</Typography>
             <Button onClick={handleButtonLoginClick} variant="contained" sx={{ width:'100%', background:'white', textTransform:'none', color:colors.blue, "&:hover": {background:'white', boxShadow:6}}}>
               <Typography sx={{fontWeight:'500'}}>Iniciar sesión</Typography>
             </Button>
           </Box>
           <Box component="form" sx={{
-            padding: '30px 60px 50px',
+            pt:'20px',
+            pb:'30px',
+            pr:'45px',
+            pl:'45px',
             width: '370px',
             background: 'white',
             boxShadow: '10',
@@ -201,18 +220,33 @@ function Register() {
               alignItems: 'center', 
               flexDirection: 'column', 
             }}>
-              <AccountCircleIcon sx={{ color: colors.blue, fontSize: 120, mb: '10px', }} />
-              <Typography variant="h3" sx={{color: colors.blue}}>Crear cuenta</Typography>
+              <AccountCircleIcon sx={{ display:{md:'flex',xs:'none'}, color: colors.blue, fontSize: '17vh', }} />
+              <Typography variant="h3" sx={{color: colors.blue, fontSize:'8vh'}}>Crear cuenta</Typography>
             </Box>
-            <TextField sx={{color:colors.blue}} fullWidth margin="dense" required id="username" label="Nombre de usuario" variant="standard" />
-            <TextField sx={{color:colors.blue}} fullWidth margin="dense" required id="user" label="Email" variant="standard" />
-            <TextField sx={{color:colors.blue, mb:'10px'}} fullWidth margin="dense" required id="password" type="password" label="Contraseña" variant="standard" />
+            <TextField size="small" sx={{color:colors.blue, mt:'1.7vh'}} fullWidth required id="username" label="Nombre de usuario" variant="standard" />
+            <TextField size="small" sx={{color:colors.blue, mt:'1.7vh'}} fullWidth required id="user" label="Email" variant="standard" />
+            <FormControl size="small" sx={{color:colors.blue, mt:'1.7vh', mb:'1.7vh'}} fullWidth required variant="standard">
+              <InputLabel>Contraseña</InputLabel>
+                <Input
+                  id="password"
+                  type={mostrarContraseña ? 'text' : 'password'}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleClickMostrarContraseña}
+                      >
+                        {mostrarContraseña ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+            </FormControl>
             {error && (
-              <Typography sx={{ color: '#e57373', mb:'0', display:'flex', alignItems:'center'}}>
-                <ErrorOutlineIcon sx={{mr:'5px'}}/>{error}
+              <Typography sx={{ fontSize:'2.7vh',color: '#e57373', mb:'0', display:'flex', alignItems:'center'}}>
+                <ErrorOutlineIcon sx={{fontSize:'4vh', mr:'5px'}}/>{error}
               </Typography>
             )}
-            <Button variant="contained" onClick={handleRegister} sx={{mt:'40px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
+            <Button variant="contained" onClick={handleRegister} sx={{mt:'3vh', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
               <Typography sx={{fontWeight:'500'}}>Aceptar</Typography>
             </Button>
           </Box>

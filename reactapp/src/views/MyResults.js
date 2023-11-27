@@ -1,5 +1,5 @@
 import React from "react";
-import MenuDB from "./Menu";
+import MenuDB from "../components/Menu";
 import { Box } from "@mui/material";
 function MyResults() {
     return (

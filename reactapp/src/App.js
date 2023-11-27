@@ -1,14 +1,14 @@
 import jwt_decode from "jwt-decode";
 import './styles/App.css';
 import { BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
-import Home from './components/Home.js';
-import Login from './components/Login.js';
-import Register from './components/Register';
-import ConsultIA from './components/ConsultIA';
-import MyConsults from './components/MyConsults';
-import TestIA from './components/TestIA';
-import MyResults from './components/MyResults';
-import MyProfile from './components/MyProfile';
+import Home from './views/Home.js';
+import Login from './views/Login.js';
+import Register from './views/Register';
+import ConsultIA from './views/ConsultIA';
+import MyConsults from './views/MyConsults';
+import TestIA from './views/TestIA';
+import MyResults from './views/MyResults';
+import MyProfile from './views/MyProfile';
 function App() {
 
   const isAuthenticated = () => {

@@ -72,21 +72,24 @@ function MenuDB() {
         <AppBar position="static" sx={{ background:colors.backgroundMenu}}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <StorageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1.5 }} />
+                    <StorageIcon sx={{fontSize:'1.3rem', display: { xs: 'none', md: 'flex' }, mr: 1.5 }} />
                     <Typography
                     variant="h5"
                     noWrap
                     component="a"
                     onClick={handleLogoClick}
-                    href="#app-bar-with-responsive-menu"
                     sx={{
                         display: { xs: 'none', md: 'flex' },
                         mr: 5,
                         fontWeight: 700,
+                        fontSize:'1.3rem',
                         fontFamily: 'monospace',
                         letterSpacing: '.3rem',
                         color: 'inherit',
                         textDecoration: 'none',
+                        '&:hover': {
+                            cursor: 'pointer', 
+                        },
                     }}
                     >
                     DBLEARNING
@@ -122,26 +125,27 @@ function MenuDB() {
                         }}
                     >
                         <MenuItem key='Consultar IA' onClick={() => {handleCloseNavMenu(); handleButtonConsultarIA();}} >
-                        <SearchIcon color="primary" sx={{mr:'6px'}}/>
-                        <Typography textAlign="center">Consultar IA</Typography>
+                        <SearchIcon color="primary" sx={{mr:'6px', fontSize:'1.4em'}}/>
+                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Consultar IA</Typography>
                         </MenuItem>
                         <MenuItem key='Mis consultas' onClick={() => {handleCloseNavMenu(); handleButtonMisConsultas();}}>
-                        <QuestionAnswerIcon color="primary" sx={{mr:'6px'}}/>
-                        <Typography textAlign="center">Mis consultas</Typography>
+                        <QuestionAnswerIcon color="primary" sx={{mr:'6px', fontSize:'1.4em'}}/>
+                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Mis consultas</Typography>
                         </MenuItem>
                         <MenuItem key='Realizar test' onClick={() => {handleCloseNavMenu(); handleButtonRealizarTest();}}>
-                        <PlaylistAddCheckCircleIcon color="primary" sx={{mr:'6px'}}/> 
-                        <Typography textAlign="center">Realizar test</Typography>
+                        <PlaylistAddCheckCircleIcon color="primary" sx={{mr:'6px', fontSize:'1.4em'}}/> 
+                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Realizar test</Typography>
                         </MenuItem>
                         <MenuItem key='Mis resultados' onClick={() => {handleCloseNavMenu(); handleButtonMisResultados();}}>
-                        <TaskAltIcon color="primary" sx={{mr:'6px'}}/>
-                        <Typography textAlign="center">Mis resultados</Typography>
+                        <TaskAltIcon color="primary" sx={{mr:'6px', fontSize:'1.4em'}}/>
+                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Mis resultados</Typography>
                         </MenuItem>
                     </Menu>
                     </Box>
-                    <StorageIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                    <StorageIcon sx={{ fontSize:'1.3em', display: { xs: 'flex', md: 'none' }, mr: 1 }} />
                     <Typography
                     variant="h5"
+                    fontSize="1.3em"
                     noWrap
                     component="a"
                     onClick={handleLogoClick}
@@ -154,6 +158,9 @@ function MenuDB() {
                         letterSpacing: '.3rem',
                         color: 'inherit',
                         textDecoration: 'none',
+                        '&:hover': {
+                            cursor: 'pointer', 
+                        },
                     }}
                     >
                     DBLEARNING
@@ -164,11 +171,11 @@ function MenuDB() {
                         key='Consultar IA'
                         onClick={handleButtonConsultarIA}
                         startIcon={<SearchIcon />}
-                        sx={{ height:'68.45px',color: 'white', display: 'inlineBlock', "&:hover": {
+                        sx={{ height:'4.53em',color: 'white', display: 'inlineBlock', "&:hover": {
                             borderBottom: "3px solid white", borderRadius: "0"}
                         }}
                         >
-                        <Typography sx={{fontWeight:'500', fontSize:'1.05rem'}}>Consultar IA</Typography>
+                        <Typography sx={{fontWeight:'500', fontSize:'1em'}}>Consultar IA</Typography>
                         </Button>
 
                         <Button
@@ -180,7 +187,7 @@ function MenuDB() {
                             borderBottom: "3px solid white", borderRadius: "0"}
                         }}
                         >
-                        <Typography sx={{fontWeight:'500', fontSize:'1.05rem'}}>Consultas realizadas</Typography>
+                        <Typography sx={{fontWeight:'500', fontSize:'1em'}}>Consultas realizadas</Typography>
                         </Button>
                         
                         <Button
@@ -192,7 +199,7 @@ function MenuDB() {
                             borderBottom: "3px solid white", borderRadius: "0"}
                         }}
                         >
-                        <Typography sx={{fontWeight:'500', fontSize:'1.05rem'}}>Realizar test</Typography>
+                        <Typography sx={{fontWeight:'500', fontSize:'1em'}}>Realizar test</Typography>
                         </Button>
 
                         <Button
@@ -204,7 +211,7 @@ function MenuDB() {
                             borderBottom: "3px solid white", borderRadius: "0"}
                         }}
                         >
-                        <Typography sx={{fontWeight:'500', fontSize:'1.05rem'}}>Mis resultados</Typography>
+                        <Typography sx={{fontWeight:'500', fontSize:'1em'}}>Mis resultados</Typography>
                         </Button>
 
                     </Box>
@@ -212,8 +219,8 @@ function MenuDB() {
                     <Box sx={{ flexGrow: 0}}>
                     <Tooltip title="Abrir ajustes">
                         <IconButton onClick={handleOpenUserMenu} sx={{ p: 0.5, borderRadius:'10px',":hover": {background:'none'}}}>
-                        <Typography  sx={{color:'white'}}>{nameUser}</Typography>
-                        <PersonIcon  color="primary" sx={{color: 'white', ml:'7px', border:'2px solid white',padding:'2px', borderRadius:'45px'}}/>
+                        <Typography  sx={{fontSize:'.6em',color:'white'}}>{nameUser}</Typography>
+                        <PersonIcon  color="primary" sx={{fontSize:'.8em', color: 'white', ml:'7px', border:'1.7px solid white',padding:'2px', borderRadius:'45px'}}/>
                         </IconButton>
                     </Tooltip>
                     <Menu
@@ -233,12 +240,12 @@ function MenuDB() {
                         onClose={handleCloseUserMenu}
                     >
                         <MenuItem key={'Mi perfil'} onClick={() => {handleCloseUserMenu(); handleMiPerfil();}}>
-                        <ManageAccountsOutlinedIcon color="primary" sx={{mr:'5px'}}/>
-                        <Typography textAlign="center">Mi perfil</Typography>
+                        <ManageAccountsOutlinedIcon color="primary" sx={{mr:'7px', fontSize:'1.4em'}}/>
+                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Mi perfil</Typography>
                         </MenuItem>
                         <MenuItem key={'Cerrar sesión'} onClick={() => { logout(); handleCloseUserMenu(); }}>
-                        <LogoutIcon sx={{color:'IndianRed', mr:'5px'}}/>
-                        <Typography textAlign="center">Cerrar sesión</Typography>
+                        <LogoutIcon sx={{color:'IndianRed', mr:'7px', fontSize:'1.4em'}}/>
+                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Cerrar sesión</Typography>
                         </MenuItem>  
                     </Menu>
                     </Box>

@@ -248,6 +248,19 @@ app.put('/editPassword', async (req, res) => {
   }
 });
 
+// Generador test OpenAI
+app.post('/generateTest', async (req, res) => {
+  const { query } = req.body; // Obtén la consulta del cuerpo de la solicitud
+  
+  // Realiza una solicitud a la API de ChatGPT utilizando Axios o tu método preferido
+  const chatGptResponse = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [{role:'user' ,content: query}],
+  })
+  // Devuelve la respuesta de ChatGPT al frontend
+  res.json(chatGptResponse.choices[0].message.content);
+});
+
 // Ruta protegida
 app.get('/protected', authenticateToken, (req, res) => {
   res.json({ message: 'This is a protected route', user: req.user });

@@ -7,7 +7,7 @@ CREATE TABLE USUARIO (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(255),
     correo VARCHAR(255),
-    contrasena VARCHAR(255)
+    contrasena VARCHAR(255),
     rol VARCHAR(50) DEFAULT 'Usuario Generico'
 );
 
@@ -23,11 +23,11 @@ CREATE TABLE RETROALIMENTACION (
 
 -- Crear tabla Pruebas
 CREATE TABLE PRUEBA (
-  ID_Prueba INT PRIMARY KEY AUTO_INCREMENT,
-  ID_Usuario INT,
-  fecha_Hora TIMESTAMP,
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  usuario_id INT,
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   calificacion FLOAT,
   dificultad VARCHAR(50),
-  tema VARCHAR(100),
-  FOREIGN KEY (ID_Usuario) REFERENCES usuario(id)
+  temas TEXT,
+  FOREIGN KEY (usuario_id) REFERENCES usuario(id)
 );

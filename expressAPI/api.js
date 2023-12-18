@@ -261,6 +261,41 @@ app.post('/generateTest', async (req, res) => {
   res.json(chatGptResponse.choices[0].message.content);
 });
 
+// Guardado de resultados del test
+app.post('/saveMark', async (req, res) => {
+  try {
+    const { usuario_id, calificacion, dificultad, temas } = req.body;
+    console.log(usuario_id,calificacion,dificultad,temas);
+    // Inserta la conversación en la tabla de retroalimentación
+    db.query(
+      'INSERT INTO PRUEBA (usuario_id, calificacion, dificultad, temas) VALUES (?, ?, ?, ?)',
+      [usuario_id, calificacion, dificultad, temas],
+      (error) => {
+        if (error) {
+          console.log(error);
+          return res.status(500).json({ message: 'Error inserting mark in bd' });
+        }
+        res.status(201).json({ message: 'Mark saved successfully' });
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+//Devolución de resultados
+app.get('/userMarks', (req, res) => {
+  const usuario_id = req.query.usuario_id; 
+  // Obtener resultados del usuario desde la base de datos
+  db.query('SELECT fecha, calificacion, dificultad, temas FROM PRUEBA WHERE usuario_id = ? ORDER BY fecha DESC', [usuario_id], (error, results) => {
+    if (error) {
+      console.error('Error retrieving user marks:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+
 // Ruta protegida
 app.get('/protected', authenticateToken, (req, res) => {
   res.json({ message: 'This is a protected route', user: req.user });

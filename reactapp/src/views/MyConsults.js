@@ -45,7 +45,7 @@ function MyConsults() {
             <QuestionAnswerIcon sx={{fontSize:'40px'}}/>
           </Typography>
           {consultaRespuesta.length === 0 ? (
-            <Typography variant="h6" ml="20px" fontWeight="regular" color={colors.blueSecondary} sx={{mt:'10px', display:'flex', flexDirection:'column', gap:'20px'}} >
+            <Typography variant="h6" ml="20px" fontWeight="regular" color={colors.blueSecondary} sx={{display:'flex', flexDirection:'column', gap:'20px'}} >
               Todavía no has realizado ninguna consulta...
               <Button endIcon={<ExitToAppIcon/>} variant="contained" onClick={handleButtonConsultClick} sx={{ boxShadow:0,width:'280px',background:colors.blueSecondary, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
                 <Typography>

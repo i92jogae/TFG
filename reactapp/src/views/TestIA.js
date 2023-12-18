@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import jwt_decode from "jwt-decode";
 import { Box, Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, Radio, RadioGroup, Slide, Typography } from "@mui/material";
 import MenuDB from "../components/Menu";
 import colors from "../config/config";
@@ -80,12 +81,12 @@ function TestIA() {
         }
     };
     const handleFinalizarTest = () => {
-        console.log(respuestasSeleccionadas);
+        
         const puntaje = generatedTest.reduce((acumulador, pregunta) => {
             const respuestaSeleccionada = respuestasSeleccionadas[pregunta.id_pregunta];
             const respuestaCorrecta = pregunta.id_respuesta_correcta;
       
-            if (respuestaSeleccionada && respuestaSeleccionada == respuestaCorrecta) {
+            if (respuestaSeleccionada && parseInt(respuestaSeleccionada) === respuestaCorrecta) {
                return acumulador + 1;
             }
             return acumulador;
@@ -94,6 +95,22 @@ function TestIA() {
         setCalificacion(calificacionRedondeada);
         setTestFinalizado(true);
         
+        axios.post('http://localhost:3060/saveMark', {
+            usuario_id: jwt_decode(localStorage.getItem('token')).id,
+            calificacion: parseFloat(calificacionRedondeada),
+            dificultad: dificultadSeleccionada,
+            temas: temasSeleccionados.join(', ')
+        }, {
+            headers:{
+                'Content-Type':'application/json',
+            }
+        })
+        .then((saveResponse) => {
+            
+        })
+        .catch((saveError) => {
+            console.error("Error saving conversation:", saveError);
+        })
         console.log("Puntaje:", puntaje);
     };
 
@@ -137,7 +154,7 @@ function TestIA() {
                             <Typography variant="h4" fontSize="30px" fontWeight="light" color={colors.blue} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'end', gap: '20px' }}>
                                 Ha obtenido una calificación de: {calificacion}/10
                             </Typography>
-                            <Typography fontWeight="Regular" color="#607d8b" fontSize="2.8vh">
+                            <Typography fontWeight="Regular" color="#607d8b" fontSize="16px">
                                 A continuación puede revisar la corrección de cada pregunta
                             </Typography>
                         </>
@@ -179,7 +196,7 @@ function TestIA() {
                                                     {index + 1 === question.id_respuesta_correcta ? (
                                                         <TaskAltRoundedIcon sx={{fontSize:'24px', color: '#66bb6a', }} />
                                                     ) : (
-                                                        respuestasSeleccionadas[question.id_pregunta] == index + 1 && (
+                                                        parseInt(respuestasSeleccionadas[question.id_pregunta]) === index + 1 && (
                                                             <CloseRoundedIcon sx={{ border:'1.9px solid #ef5350',borderRadius:'45px' ,fontSize:'18px', color: '#ef5350',  }} />
                                                         )
                                                     )}

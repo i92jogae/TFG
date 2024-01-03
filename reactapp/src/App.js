@@ -9,6 +9,7 @@ import MyConsults from './views/MyConsults';
 import TestIA from './views/TestIA';
 import MyResults from './views/MyResults';
 import MyProfile from './views/MyProfile';
+import UsersManagement from "./views/UsersManagement.js";
 function App() {
 
   const isAuthenticated = () => {
@@ -32,6 +33,15 @@ function App() {
     
   };
 
+  const adminVerify = () => {
+    try {
+      const decodedToken = jwt_decode(localStorage.getItem('token'));
+      return decodedToken.rol === 'Admin';
+    } catch (error) {
+      return false;
+    }
+  };
+
   return (
       <BrowserRouter>
         <Routes>
@@ -43,6 +53,16 @@ function App() {
           <Route path="/myconsults" element={isAuthenticated() ? <MyConsults /> : <Navigate to="/login" />} />
           <Route path="/testIA" element={isAuthenticated() ? <TestIA /> : <Navigate to="/login" />} />
           <Route path="/myresults" element={isAuthenticated() ? <MyResults /> : <Navigate to="/login" />} />
+          <Route
+            path="/usersmanagement"
+            element={
+              isAuthenticated() && adminVerify() ? (
+                <UsersManagement />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
         </Routes>
       </BrowserRouter>
   );

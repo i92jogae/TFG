@@ -8,6 +8,7 @@ CREATE TABLE USUARIO (
     nombre VARCHAR(255),
     correo VARCHAR(255),
     contrasena VARCHAR(255),
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     rol VARCHAR(50) DEFAULT 'Usuario Generico'
 );
 

@@ -5,16 +5,8 @@ import colors from "../config/config";
 import { useNavigate } from "react-router-dom";
 import '../styles/Home.css';
 import jwt_decode from "jwt-decode";
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
+import {AppBar, Box, Toolbar, IconButton, Menu, Container, Button, Tooltip, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 import StorageIcon from '@mui/icons-material/Storage';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle';
@@ -23,16 +15,19 @@ import SearchIcon from '@mui/icons-material/Search';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
+import GroupIcon from '@mui/icons-material/Group';
 
 function MenuDB() {
     const navigate = useNavigate();
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
     let nameUser = jwt_decode(localStorage.getItem('token')).nombre;
+    const rol = jwt_decode(localStorage.getItem('token')).rol;
 
     const logout = () => {
         localStorage.removeItem('token');
-        window.location.href = "/";
+        navigate('/');
+        window.location.reload();
     }
     const handleLogoClick = () => {
         navigate('/');
@@ -51,6 +46,9 @@ function MenuDB() {
     };
     const handleMiPerfil = () => {
         navigate('/myprofile');
+    };
+    const handleGestionUsuarios = () => {
+        navigate('/usersmanagement');
     };
     
     const handleOpenNavMenu = (event) => {
@@ -239,13 +237,19 @@ function MenuDB() {
                         open={Boolean(anchorElUser)}
                         onClose={handleCloseUserMenu}
                     >
-                        <MenuItem key={'Mi perfil'} onClick={() => {handleCloseUserMenu(); handleMiPerfil();}}>
-                        <ManageAccountsOutlinedIcon color="primary" sx={{mr:'7px', fontSize:'1.4em'}}/>
-                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Mi perfil</Typography>
+                        <MenuItem key={'Mi perfil'} onClick={() => { handleCloseUserMenu(); handleMiPerfil(); }}>
+                            <ManageAccountsOutlinedIcon color="primary" sx={{mr:'7px', fontSize:'1.4em'}}/>
+                            <Typography textAlign="center" sx={{fontSize:'.9em'}}>Mi perfil</Typography>
                         </MenuItem>
+                        {rol === 'Admin' && (
+                            <MenuItem key={'Gestión de usuarios'} onClick={() => { handleCloseUserMenu(); handleGestionUsuarios() }}>
+                                <GroupIcon color="primary" sx={{mr:'7px', fontSize:'1.4em'}}/>
+                                <Typography textAlign="center" sx={{fontSize:'.9em'}}>Gestión de usuarios</Typography>
+                            </MenuItem>
+                        )}
                         <MenuItem key={'Cerrar sesión'} onClick={() => { logout(); handleCloseUserMenu(); }}>
-                        <LogoutIcon sx={{color:'IndianRed', mr:'7px', fontSize:'1.4em'}}/>
-                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Cerrar sesión</Typography>
+                            <LogoutIcon sx={{color:'IndianRed', mr:'7px', fontSize:'1.4em'}}/>
+                            <Typography textAlign="center" sx={{fontSize:'.9em'}}>Cerrar sesión</Typography>
                         </MenuItem>  
                     </Menu>
                     </Box>

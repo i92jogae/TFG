@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from "react";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
+import '../styles/MyProfile.css';
 import MenuDB from "../components/Menu";
 import colors from "../config/config";
 import { Box, Divider, IconButton, List, ListItem, Modal, Typography, Fade, Backdrop, TextField, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide, FormControl, InputLabel, Input, InputAdornment } from "@mui/material";
@@ -44,7 +45,7 @@ function MyProfile() {
             setDatosUsuario(response.data);
           })
           .catch(error => {
-            console.error('Error fetching user consultations:', error);
+            alert('Se ha producido un error al recuperar sus datos. ',error);
           });
     }, []); 
 
@@ -84,8 +85,6 @@ function MyProfile() {
                 }
             )
             .then((response) => {
-                console.log(response.data.message);
-                // Puedes actualizar el estado u realizar otras acciones si es necesario
                 handleCloseModalNombre();
                 setEdited(true);
             })
@@ -107,7 +106,7 @@ function MyProfile() {
         } else if (pass.length<8 || !(/\d/.test(pass))) {
             setError("La contraseña debe tener al menos 8 caracteres y un número.");
         } else {
-            //Solicitud par editar la contraseña
+            //Solicitud para editar la contraseña
             axios
             .put(`http://localhost:3060/editPassword`,
             { usuario_id: jwt_decode(localStorage.getItem("token")).id, nueva_contrasena: pass },
@@ -118,8 +117,6 @@ function MyProfile() {
             }
             )
             .then((response) => {
-                console.log(response.data.message);
-                // Puedes actualizar el estado u realizar otras acciones si es necesario
                 handleCloseModalPass();
                 setEdited(true);
             })
@@ -134,7 +131,7 @@ function MyProfile() {
     };
 
     return (
-        <Box sx={{height:'100%', margin: 0, backgroundColor:'',  }}>
+        <Box sx={{minHeight:'100vh', margin: 0, overflowY:'auto'}}>
             <Dialog
                 open={edited}
                 TransitionComponent={Transition}
@@ -159,7 +156,7 @@ function MyProfile() {
                 </DialogActions>
             </Dialog>
             <MenuDB />
-            <Box sx={{ display:'flex',mt:'10vh', justifyContent:'center',}}>
+            <Box sx={{ display:'flex', justifyContent:'center',height:'100%', mt:'50px', mb:'50px'}}>
                 <Box sx={{ display:'flex',flexDirection:'column', gap:'17px', width:'50%', backgroundColor:'white',pt:'30px', pl:'40px', pr:'40px', pb:'10px', borderRadius:'10px', border:'1px solid rgba(0, 0, 0, 0.17)'}}>
                     <Modal
                         open={modalNombreAbierto}
@@ -236,11 +233,11 @@ function MyProfile() {
                             </Box>
                         </Fade>
                     </Modal>
-                    <Typography variant="h3" fontSize="7vh" fontWeight="Light" color={colors.blue} sx={{display:'flex',flexDirection:'row', alignItems:'end', gap:'10px',}}>
+                    <Typography variant="h3" fontSize="39px" fontWeight="Light" color={colors.blue} sx={{display:'flex',flexDirection:'row', alignItems:'end', gap:'10px',}}>
                         Información personal
                         <ContactPageOutlinedIcon sx={{fontSize:'44px'}}/>
                     </Typography>
-                    <Typography ml="10px" fontWeight="Regular" color="#607d8b" fontSize="2.8vh">
+                    <Typography ml="10px" fontWeight="Regular" color="#607d8b" fontSize="15.5px">
                         Tu información personal será totalmente privada y siempre estará protegida. Además podrás gestionarla cuando lo desees.
                     </Typography>
                     <List sx={{width:'100%' }}>
@@ -249,13 +246,13 @@ function MyProfile() {
                                 <EditIcon/>
                             </IconButton>}
                         >
-                            <Typography width="221px" fontSize="2.8vh" color={colors.blue}>Nombre de usuario</Typography>
-                            <Typography fontWeight="medium" fontSize="2.8vh" color="#607d8b">{datosUsuario[0]?.nombre}</Typography>
+                            <Typography width="221px" fontSize="15.5px" color={colors.blue}>Nombre de usuario</Typography>
+                            <Typography fontWeight="medium" fontSize="15.5px" color="#607d8b">{datosUsuario[0]?.nombre}</Typography>
                         </ListItem>
                         <Divider />
                         <ListItem sx={{mt:'1%', mb:'10px'}} >
-                            <Typography width="221px" fontSize="2.8vh" color={colors.blue}>Email</Typography>
-                            <Typography fontWeight="medium" fontSize="2.8vh" color="#607d8b">{datosUsuario[0]?.correo}</Typography>
+                            <Typography width="221px" fontSize="15.5px" color={colors.blue}>Email</Typography>
+                            <Typography fontWeight="medium" fontSize="15.5px" color="#607d8b">{datosUsuario[0]?.correo}</Typography>
                         </ListItem>
                         <Divider />
                         <ListItem sx={{mt:'1%'}} secondaryAction=
@@ -263,8 +260,8 @@ function MyProfile() {
                                 <EditIcon />
                             </IconButton>}
                         >
-                            <Typography width="221px" fontSize="2.8vh" color={colors.blue}>Contraseña</Typography>
-                            <Typography fontWeight="medium" fontSize="2.8vh" color="#607d8b">***********</Typography>
+                            <Typography width="221px" fontSize="15.5px" color={colors.blue}>Contraseña</Typography>
+                            <Typography fontWeight="medium" fontSize="15.5px" color="#607d8b">***********</Typography>
                         </ListItem>
                     </List>
                 </Box>

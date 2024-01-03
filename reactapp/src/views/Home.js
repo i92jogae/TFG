@@ -24,7 +24,7 @@ function Home() {
   const navigate = useNavigate();
 
   function isUserAuthenticated() {
-    const token = localStorage.getItem('token'); // Otra forma de obtener el token almacenado
+    const token = localStorage.getItem('token'); 
   
     if (!token) {
       return false; // El token no existe
@@ -52,22 +52,23 @@ function Home() {
     
   if (isUserAuthenticated()) {
     return (
-      <Box sx={{ overflow:'hidden', margin: 0, backgroundImage: `url(${fondo_final})`, backgroundSize:'cover', }}>
+      <Box sx={{ overflowY:'auto', margin: 0, backgroundImage: `url(${fondo_final})`, minHeight:'100vh',backgroundSize:'cover', }}>
         <MenuDB/>
         <Box sx={{
-          overflow:'auto',pt:'27px', pl:'27px', pr:'27px', pb:'27px', height:'79.4vh',flexGrow:1, 
+          pt:'27px', pl:'27px', pr:'27px', pb:'27px', height:'100%',flexGrow:1, overflow:'hidden'
         }}>
-          <Typography sx={{fontSize:'2.6em', width:'63%',fontWeight:'500'}} color="white" variant="h2">
+          <Typography sx={{fontSize:'2.6em', width:{md:'63%',xs:'80%'},fontWeight:'500'}} color="white" variant="h2">
             Amplía tus conocomientos en bases de datos de forma rápida y eficaz
           </Typography>
-          <Grid container spacing={3.7} sx={{display: { xs: 'none', sm:'none',md: 'flex' }, m:'25px 0 0 0', justifyContent:'flex-start'}}>
+          <Grid container spacing={3.7} sx={{display: 'flex', flexDirection: { xs: 'column', md: 'row'}, m:'25px 0 0 0', justifyContent:'flex-start'}}>
             <Grid xs={2.7} sx={{ 
-                mb:'30px',
-                background: 'rgb(0,0,0,0.25)',
-                backdropFilter: 'blur(35px)',
-                mr:'30px',  borderRadius:'20px', 
-                border:'1px solid rgba(0, 0, 0, 0.12)'
-              }}>
+              mb:'30px',
+              minWidth:{md:'250px', xs:'80%'},
+              background: 'rgb(0,0,0,0.25)',
+              backdropFilter: 'blur(35px)',
+              mr:'30px',  borderRadius:'20px', 
+              border:'1px solid rgba(0, 0, 0, 0.12)'
+            }}>
               <Typography sx={{color:'white', mb:'5%'}} variant="h5">Usamos IA</Typography>
               
               <Typography sx={{fontSize:'0.95em', fontWeight:'350', textAlign:'justify', color:'white'}}>{cardtext1}</Typography>
@@ -75,6 +76,7 @@ function Home() {
             </Grid>
             <Grid xs={2.7} sx={{ 
                 mb:'30px',
+                minWidth:{md:'250px', xs:'80%'},
                 background: 'rgb(0,0,0,0.25)', 
                 backdropFilter: 'blur(35px)',
                 mr:'30px',  borderRadius:'20px', 
@@ -86,6 +88,7 @@ function Home() {
             </Grid>
             <Grid xs={2.7} sx={{
                 mb:'30px',
+                minWidth:{md:'250px', xs:'80%'},
                 background: 'rgb(0,0,0,0.25)', 
                 backdropFilter: 'blur(35px)',
                 mr:'30px',  borderRadius:'20px', 
@@ -101,7 +104,7 @@ function Home() {
     );
   } else {
     return(
-      <Box  sx={{ overflow:'hidden', margin: 0, backgroundImage: `url(${fondo_final})`, backgroundSize:'cover', }}>
+      <Box sx={{ overflowY:'auto', margin: 0, backgroundImage: `url(${fondo_final})`,minHeight:'100vh', backgroundSize:'cover', }}>
         <AppBar position="static" sx={{background:colors.backgroundMenu}}>
           <Container maxWidth="xl">
             <Toolbar disableGutters>
@@ -247,18 +250,19 @@ function Home() {
           </Container>
         </AppBar>
         <Box sx={{
-          overflow:'auto',pt:'27px', pl:'27px', pr:'27px', pb:'27px', height:'79.4vh',flexGrow:1, 
+          pt:'27px', pl:'27px', pr:'27px', pb:'27px', height:'100%', flexGrow:1, overflow:'hidden'
         }}>
-          <Typography sx={{fontSize:'2.6em', width:'63%',fontWeight:'500'}} color="white" variant="h2">
+          <Typography sx={{fontSize:'2.6em', width:{md:'63%', xs:'80%'},fontWeight:'500'}} color="white" variant="h2">
             Amplía tus conocomientos en bases de datos de forma rápida y eficaz
           </Typography>
-          <Grid container spacing={3.7} sx={{display: { xs: 'none', sm:'none',md: 'flex' }, m:'25px 0 0 0', justifyContent:'flex-start'}}>
+          <Grid container spacing={3.7} sx={{display: 'flex', flexDirection: { xs: 'column', md: 'row'}, m:'25px 0 0 0', justifyContent:'flex-start'}}>
             <Grid xs={2.7} sx={{ 
                 mb:'30px',
+                minWidth:{md:'250px', xs:'80%'},
                 background: 'rgb(0,0,0,0.25)',
                 backdropFilter: 'blur(35px)',
                 mr:'30px',  borderRadius:'20px', 
-                border:'1px solid rgba(255, 255, 255, 0.12)'
+                border:'1px solid rgba(0, 0, 0, 0.12)'
               }}>
               <Typography sx={{color:'white', mb:'5%'}} variant="h5">Usamos IA</Typography>
               
@@ -267,10 +271,11 @@ function Home() {
             </Grid>
             <Grid xs={2.7} sx={{ 
                 mb:'30px',
+                minWidth:{md:'250px', xs:'80%'},
                 background: 'rgb(0,0,0,0.25)', 
                 backdropFilter: 'blur(35px)',
                 mr:'30px',  borderRadius:'20px', 
-                border:'1px solid rgba(255, 255, 255, 0.12)'
+                border:'1px solid rgba(0, 0, 0, 0.12)'
               }}>
               <Typography sx={{color:'white', mb:'5%'}} variant="h5">Test adaptados</Typography>
               
@@ -278,10 +283,11 @@ function Home() {
             </Grid>
             <Grid xs={2.7} sx={{
                 mb:'30px',
+                minWidth:{md:'250px', xs:'80%'},
                 background: 'rgb(0,0,0,0.25)', 
                 backdropFilter: 'blur(35px)',
                 mr:'30px',  borderRadius:'20px', 
-                border:'1px solid rgba(255, 255, 255, 0.12)'
+                border:'1px solid rgba(0, 0, 0, 0.12)'
               }}>
               <Typography sx={{color:'white', mb:'5%'}} variant="h5">Sigue tu progreso</Typography>
               

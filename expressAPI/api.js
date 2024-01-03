@@ -28,10 +28,8 @@ const db = mysql.createConnection({
 // Conexión a bd
 db.connect((err) => {
   if (err) {
-    console.error('Error connecting to MySQL database:', err);
     process.exit(1);
   }
-  console.log('Connected to MySQL database');
 });
 
 // Middleware para comprobar autenticación de usuario
@@ -54,7 +52,6 @@ app.post('/register', async (req, res) => {
     // Comprobación de que el usuario no exista previamente (por email)
     db.query('SELECT * FROM USUARIO WHERE correo = ?', [correo], async (error, results) => {
       if (error) {
-        console.error('Error checking user existence:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
       }
 
@@ -71,7 +68,6 @@ app.post('/register', async (req, res) => {
         [nombre, correo, hashedPassword],
         (error) => {
           if (error) {
-            console.error('Error inserting user:', error);
             return res.status(500).json({ message: 'Internal Server Error' });
           }
           res.status(201).json({ message: 'User registered successfully' });
@@ -91,7 +87,6 @@ app.post('/login', async (req, res) => {
     // Comprobación de login
     db.query('SELECT * FROM usuario WHERE correo = ?', [correo], async (error, results) => {
       if (error) {
-        console.error('Error retrieving user from database:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
       }
 
@@ -106,10 +101,9 @@ app.post('/login', async (req, res) => {
       if (!passwordMatch) {
         return res.status(401).json({ message: 'Authentication failed' });
       }
-      else{console.log("Inicio de sesion correcto");}
       // Generación del JWT token para la sesión
-      const token = jwt.sign({ id: results[0].id, nombre: results[0].nombre, correo: results[0].correo }, secretKey, {
-        expiresIn: '1h', // Token expires in 1 hour
+      const token = jwt.sign({ id: results[0].id, nombre: results[0].nombre, correo: results[0].correo, rol: results[0].rol }, secretKey, {
+        expiresIn: '3h', // Token expires in 1 hour
       });
 
       res.json({ token: token });
@@ -147,7 +141,6 @@ app.post('/saveConversation', async (req, res) => {
       [usuario_id, consulta, respuesta],
       (error) => {
         if (error) {
-          console.error('Error inserting conversation:', error);
           return res.status(500).json({ message: 'Internal Server Error' });
         }
         res.status(201).json({ message: 'Conversation saved successfully' });
@@ -164,7 +157,6 @@ app.get('/userConsults', (req, res) => {
   // Obtener consultas del usuario desde la base de datos
   db.query('SELECT consulta, respuesta, fecha FROM RETROALIMENTACION WHERE usuario_id = ? ORDER BY fecha DESC', [usuario_id], (error, results) => {
     if (error) {
-      console.error('Error retrieving user consultations:', error);
       return res.status(500).json({ message: 'Internal Server Error' });
     }
     res.json(results);
@@ -175,7 +167,6 @@ app.get('/userData', (req,res) => {
   const usuario_id = req.query.usuario_id;
   db.query('SELECT nombre, correo FROM USUARIO WHERE id = ?', [usuario_id], (error, results) => {
     if (error) {
-      console.error('Error retrieving user consultations:', error);
       return res.status(500).json({ message: 'Internal Server Error' });
     }
     res.json(results);
@@ -190,7 +181,6 @@ app.put('/editUsername', async (req, res) => {
     // Obtiene el nombre actual del usuario
     db.query('SELECT nombre FROM USUARIO WHERE id = ?', [usuario_id], async (error, results) => {
       if (error) {
-        console.error('Error retrieving current username:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
       }
 
@@ -202,7 +192,6 @@ app.put('/editUsername', async (req, res) => {
       // Actualiza el nombre de usuario en la base de datos
       db.query('UPDATE USUARIO SET nombre = ? WHERE id = ?', [nuevo_nombre, usuario_id], (error) => {
         if (error) {
-          console.error('Error updating username:', error);
           return res.status(500).json({ message: 'Internal Server Error' });
         }
         res.status(200).json({ message: 'Username updated successfully' });
@@ -221,7 +210,6 @@ app.put('/editPassword', async (req, res) => {
     // Obtiene la contraseña actual del usuario
     db.query('SELECT contrasena FROM USUARIO WHERE id = ?', [usuario_id], async (error, results) => {
       if (error) {
-        console.error('Error retrieving current password:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
       }
 
@@ -237,7 +225,6 @@ app.put('/editPassword', async (req, res) => {
       // Actualiza la contraseña en la base de datos
       db.query('UPDATE USUARIO SET contrasena = ? WHERE id = ?', [hashedPassword, usuario_id], (error) => {
         if (error) {
-          console.error('Error updating password:', error);
           return res.status(500).json({ message: 'Internal Server Error' });
         }
         res.status(200).json({ message: 'Password updated successfully' });
@@ -265,14 +252,12 @@ app.post('/generateTest', async (req, res) => {
 app.post('/saveMark', async (req, res) => {
   try {
     const { usuario_id, calificacion, dificultad, temas } = req.body;
-    console.log(usuario_id,calificacion,dificultad,temas);
     // Inserta la conversación en la tabla de retroalimentación
     db.query(
       'INSERT INTO PRUEBA (usuario_id, calificacion, dificultad, temas) VALUES (?, ?, ?, ?)',
       [usuario_id, calificacion, dificultad, temas],
       (error) => {
         if (error) {
-          console.log(error);
           return res.status(500).json({ message: 'Error inserting mark in bd' });
         }
         res.status(201).json({ message: 'Mark saved successfully' });
@@ -289,10 +274,47 @@ app.get('/userMarks', (req, res) => {
   // Obtener resultados del usuario desde la base de datos
   db.query('SELECT fecha, calificacion, dificultad, temas FROM PRUEBA WHERE usuario_id = ? ORDER BY fecha DESC', [usuario_id], (error, results) => {
     if (error) {
-      console.error('Error retrieving user marks:', error);
       return res.status(500).json({ message: 'Internal Server Error' });
     }
     res.json(results);
+  });
+});
+
+//Devolución de usuarios (servicio de admin)
+app.get('/users', (req, res) => {
+  // Obtener usuarios de la base de datos
+  db.query('SELECT id, nombre, correo, rol, fecha_registro FROM USUARIO ORDER BY fecha_registro DESC', (error, results) => {
+    if (error) {
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+    res.json(results);
+  });
+});
+
+// Borrado de usuarios (servicio de admin)
+app.delete('/deleteUser', (req, res) => {
+  const usuario_id = req.query.usuario_id;
+
+  // 1. Borrar registros de RETROALIMENTACION
+  db.query('DELETE FROM RETROALIMENTACION WHERE usuario_id = ?', [usuario_id], (error) => {
+      if (error) {
+          return res.status(500).json({ message: 'Internal Server Error' });
+      }
+
+      // 2. Borrar registros de PRUEBA
+      db.query('DELETE FROM PRUEBA WHERE usuario_id = ?', [usuario_id], (error) => {
+          if (error) {
+              return res.status(500).json({ message: 'Internal Server Error' });
+          }
+
+          // 3. Borrar usuario de la base de datos
+          db.query('DELETE FROM USUARIO WHERE id = ?', [usuario_id], (error) => {
+              if (error) {
+                  return res.status(500).json({ message: 'Internal Server Error' });
+              }
+              res.status(202).json({ message: 'User deleted correctly' });
+          });
+      });
   });
 });
 

@@ -13,8 +13,8 @@ function ConsultIA() {
     const [inputText, setInputText] = useState(""); 
     const [loading, setLoading] = useState(false);
     let firstLetterUser = jwt_decode(localStorage.getItem('token')).nombre.substring(0,1);
+    
     const handleUserInput = () => {
-      // Al manejar el envío de la consulta del usuario, agrega la conversación al estado
       if (inputText.trim() !== "") {
         setConversations(prevConversations => [
           ...prevConversations,
@@ -43,17 +43,14 @@ function ConsultIA() {
               }
             })
             .then((saveResponse) => {
-              console.log(saveResponse.data.message);
             })
             .catch((saveError) => {
-              alert("Se ha producido un error en la consulta, inténtelo de nuevo");
-              console.error("Error saving conversation:", saveError);
+              alert("Se ha producido un error al guardar su consulta, inténtelo de nuevo");
             })
             setLoading(false);
           })
           .catch((error) => {
-            alert("Se ha producido un error en la consulta, inténtelo de nuevo");
-            console.error("Error al hacer la solicitud a la API de Express:", error);
+            alert("Se ha producido un error al procesar la consulta, inténtelo de nuevo");
             setLoading(false);
           });
         setInputText("");
@@ -61,11 +58,11 @@ function ConsultIA() {
     };
     
     return (
-      <Box style={{height:'100%', margin: 0, backgroundColor:'white' }}>
+      <Box sx={{minheight:'100vh',  margin: 0, backgroundColor:'white' }}>
         <MenuDB />
-        <Box style={{display: 'flex', flexDirection:'column'}}>
+        <Box sx={{display: 'flex', flexDirection:'column'}}>
           {loading && <LinearProgress sx={{color:colors.blue, width: '100%' }} />}
-          <Paper elevation={3} sx={{ backgroundImage:conversations.length === 0 ? `url(${dblearningchat})` : 'none', backgroundSize:'100% 100%', overflowY:'auto',overflowX:'hidden', borderRadius:'0px', display:'flex', flexDirection:'column', height:'71.8vh', textAlign: 'left' }}>
+          <Paper elevation={3} sx={{ backgroundImage:conversations.length === 0 ? `url(${dblearningchat})` : 'none', backgroundSize:'100% 100%', overflowY:'auto',overflowX:'hidden', borderRadius:'0px', display:'flex', flexDirection:'column', height:'70vh', textAlign: 'left' }}>
           {conversations.map((conversation, index) => (
             <React.Fragment key={index}>
               <Typography
@@ -80,7 +77,7 @@ function ConsultIA() {
           ))}
           </Paper>
           <Divider/>
-          <Box sx={{backgroundColor:'white', display:'flex',justifyContent:'center', alignContent:'end', boxShadow: "0px 0px 45px white",}}>
+          <Box sx={{backgroundColor:'white', display:'flex',justifyContent:'center', alignContent:'end', boxShadow: "0px 0px 45px white", height:'100%'}}>
             <TextField
               id="textFielConsulta"
               label="Envía tu consulta"

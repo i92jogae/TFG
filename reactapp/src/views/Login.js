@@ -28,8 +28,6 @@ function Login() {
     if (email==="" || password==="") {
       setError("Debe introducir su email y contraseña");
     } else {
-      console.log(email,password);
-      // Realiza la solicitud POST a la ruta de inicio de sesión en tu API utilizando Axios
       axios.post('http://localhost:3060/login', {
         correo: email,
         contrasena: password,
@@ -39,28 +37,20 @@ function Login() {
         }
       })
       .then(function (response) {
-        // La solicitud fue exitosa, obtén el token y guárdalo en localStorage
         const data = response.data;
         localStorage.setItem("token", data.token);
-        // Redirige al usuario a la página protegida o realiza cualquier otra acción
-        window.location.href = "/"; // Ajusta la redirección según tus necesidades
+        window.location.href = "/"; 
       })
       .catch(function (error) {
-        console.log(error);
         if (error.response) {
-          // Si hay una respuesta del servidor
           if (error.response.status === 401) {
-            // Código de error 401 (No autorizado)
             setError("Email o contraseña incorrectos");
           } else if (error.response.status === 500) {
-            // Código de error 500 (Error interno del servidor)
-            alert("Ha ocurrido un error interno del servidor. Por favor, inténtalo de nuevo más tarde.");
+            alert("Se ha producido un error, inténtalo de nuevo más tarde.");
           } else {
-            // Otros códigos de error
             alert("Ha ocurrido un error. Por favor, inténtalo de nuevo.");
           }
         } else {
-          // Error de red u otro tipo de error
           alert("Ha ocurrido un error. Por favor, inténtalo de nuevo.");
         }
       });
@@ -149,12 +139,12 @@ function Login() {
             alignItems:'center'
           }}>
             <Box sx={{display:'flex', flexDirection:'row'}}>
-              <Typography variant="h3" sx={{mt:'18vh', fontSize:'8vh', color:'white', fontWeight:'400',display:'flex', alignItems:'center'}}>
+              <Typography variant="h3" sx={{mt:'100px', fontSize:'44.6px', color:'white', fontWeight:'400',display:'flex', alignItems:'center'}}>
                 Bienvenido <EmojiPeopleIcon sx={{ml:'10px' ,fontSize:50, color:'white'}}/>  
               </Typography>
 
             </Box>
-            <Typography variant="h6" sx={{mt:'19.5vh', mb:'15px', color:'white'}}>¿Todavía sin cuenta? Regístrate ya</Typography>
+            <Typography variant="h6" sx={{mt:'110px', mb:'15px', color:'white'}}>¿Todavía sin cuenta? Regístrate ya</Typography>
             <Button onClick={handleButtonRegisterClick} variant="contained" sx={{ width:'100%', background:'white', textTransform:'none', color:colors.blue, "&:hover": {background:'white', boxShadow:6}}}>
               <Typography sx={{fontWeight:'500'}}>Registrarse</Typography>
             </Button>
@@ -173,11 +163,11 @@ function Login() {
               alignItems: 'center', 
               flexDirection: 'column', 
             }}>
-              <AccountCircleIcon sx={{ color: colors.blue, fontSize: '17vh', mb: '10px', }} />
-              <Typography variant="h3" sx={{color: colors.blue, fontSize:'8vh'}}>Iniciar Sesión</Typography>
+              <AccountCircleIcon sx={{ color: colors.blue, fontSize: '95px', mb: '10px', }} />
+              <Typography variant="h3" sx={{color: colors.blue, fontSize:'44.6px'}}>Iniciar Sesión</Typography>
             </Box>
-            <TextField sx={{color:colors.blue, mt:'1.7vh'}} fullWidth required id="user" label="Email" variant="standard" />
-            <FormControl sx={{mt:'1.7vh', mb:'1.7vh'}}  fullWidth required variant="standard">
+            <TextField sx={{color:colors.blue, mt:'9.5px'}} fullWidth required id="user" label="Email" variant="standard" />
+            <FormControl sx={{mt:'9.5px', mb:'9.5px'}}  fullWidth required variant="standard">
               <InputLabel>Contraseña</InputLabel>
                 <Input
                   id="password"
@@ -194,8 +184,8 @@ function Login() {
                 />
             </FormControl>
             {error && (
-              <Typography sx={{ fontSize:'2.7vh', color: '#e57373', mb:'0', display:'flex', alignItems:'center'}}>
-                <ErrorOutlineIcon sx={{mr:'5px', fontSize:'4vh'}}/>{error}
+              <Typography sx={{ fontSize:'15px', color: '#e57373', mb:'0', display:'flex', alignItems:'center'}}>
+                <ErrorOutlineIcon sx={{mr:'5px', fontSize:'22px'}}/>{error}
               </Typography>
             )}
             <Button variant="contained" onClick={handleLogin} sx={{mt:'30px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>

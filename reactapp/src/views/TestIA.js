@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import '../styles/TestIA.css';
 import jwt_decode from "jwt-decode";
 import { Box, Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, Radio, RadioGroup, Slide, Typography } from "@mui/material";
 import MenuDB from "../components/Menu";
@@ -56,32 +57,28 @@ function TestIA() {
     };
     const handleComenzarTest = async () => {
         if (temasSeleccionados.length > 0) {
-            // Aquí puedes realizar la lógica para comenzar el test
             try {
                 setLoadingTest(true);
                 const response = await axios.post(
                     'http://localhost:3060/generateTest',
-                    { query: `Genera un test sobre bases de datos, sobre los siguientes temas: ${temasSeleccionados.join(', ')} de dificultad ${dificultadSeleccionada}, que conste de 11 preguntas. Quiero que me devuelvas únicamente un array, en el que se incluya las variables "id_pregunta", "pregunta", "respuestas", "id_respuesta_correcta" por cada pregunta generada. No incluyas texto adicional, el id_respuesta_correcta debe ser un número` },
+                    { query: `Genera un test sobre bases de datos, sobre los siguientes temas: ${temasSeleccionados.join(', ')} . De dificultad ${dificultadSeleccionada}, que conste de 11 preguntas. Quiero que me devuelvas únicamente un array, en el que se incluya las variables "id_pregunta", "pregunta", "respuestas", "id_respuesta_correcta" por cada pregunta generada. No incluyas texto adicional, el id_respuesta_correcta debe ser un número` },
                     { headers: { 'Content-Type': 'application/json' } }
                 );
                 const cleanedResponse = response.data.substring(response.data.indexOf('['), response.data.lastIndexOf(']') + 1);
                 const generatedTestObject = JSON.parse(cleanedResponse);
                 setGeneratedTest(generatedTestObject);
-                console.log(generatedTestObject);
             } catch (error) {
-                console.error("Error al cargar el test:", error);
                 setLoadingTest(false);
                 setError(true);
             } finally {
                 setLoadingTest(false);
             }
         } else {
-            // Muestra un mensaje o realiza alguna acción si no se cumplen los requisitos
             setIsNotSelected(true);
         }
     };
-    const handleFinalizarTest = () => {
-        
+
+    const handleFinalizarTest = () => {  
         const puntaje = generatedTest.reduce((acumulador, pregunta) => {
             const respuestaSeleccionada = respuestasSeleccionadas[pregunta.id_pregunta];
             const respuestaCorrecta = pregunta.id_respuesta_correcta;
@@ -91,13 +88,13 @@ function TestIA() {
             }
             return acumulador;
         }, 0);
-        const calificacionRedondeada = parseFloat((puntaje / 11 * 10).toFixed(2));
-        setCalificacion(calificacionRedondeada);
+        const calificacionTest = parseFloat((puntaje / 11 * 10));
+        setCalificacion(calificacionTest);
         setTestFinalizado(true);
         
         axios.post('http://localhost:3060/saveMark', {
             usuario_id: jwt_decode(localStorage.getItem('token')).id,
-            calificacion: parseFloat(calificacionRedondeada),
+            calificacion: parseFloat(calificacionTest),
             dificultad: dificultadSeleccionada,
             temas: temasSeleccionados.join(', ')
         }, {
@@ -109,16 +106,15 @@ function TestIA() {
             
         })
         .catch((saveError) => {
-            console.error("Error saving conversation:", saveError);
+            alert('Se ha producido un error al guardar la calificación del test. ', saveError);
         })
-        console.log("Puntaje:", puntaje);
     };
 
     const handleFinalizarRevision = () => {
         window.location.reload();
     };
     return (
-        <Box sx={{height:'100%', margin: 0, }}>
+        <Box sx={{minHeight:'100vh', margin: 0,overflowX:'hidden' }}>
             <Dialog
                 open={isNotSelected}
                 TransitionComponent={Transition}
@@ -143,16 +139,16 @@ function TestIA() {
             </Dialog>
             <MenuDB />
             {loadingTest ? (
-                <Box sx={{ display: 'flex', flexDirection:'column',width:'99.7vw', height:'88vh' ,justifyContent: 'center', alignItems: 'center', gap:'50px'}}>
+                <Box sx={{ display: 'flex', overflow:'hidden', flexDirection:'column', height:'88vh' ,justifyContent: 'center', alignItems: 'center', gap:'50px'}}>
                     <CircularProgress size={55}/>
                     <Typography variant="h7" color="#607d8b">Generando parámetros del test... Puede tardar unos minutos</Typography>
                 </Box>
             ) : generatedTest ? (
-                <Box sx={{height:'68vh', display:'flex', flexDirection:'column',pt:'60px',pb:'60px', pr:'60px', pl:'60px' , overflowY:'auto', gap:'20px'}}>
+                <Box sx={{height:'100%', display:'flex', flexDirection:'column',pt:'60px',pb:'60px', pr:'60px', pl:'60px' , overflowY:'auto', gap:'20px'}}>
                     {testFinalizado ? (
                         <>
                             <Typography variant="h4" fontSize="30px" fontWeight="light" color={colors.blue} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'end', gap: '20px' }}>
-                                Ha obtenido una calificación de: {calificacion}/10
+                                Ha obtenido una calificación de: {calificacion.toFixed(2)}/10
                             </Typography>
                             <Typography fontWeight="Regular" color="#607d8b" fontSize="16px">
                                 A continuación puede revisar la corrección de cada pregunta
@@ -173,7 +169,7 @@ function TestIA() {
                                 <RadioGroup
                                     aria-label={`Pregunta ${question.id_pregunta}`}
                                     name={`pregunta${question.id_pregunta}`}
-                                    value={respuestasSeleccionadas[question.id_pregunta] || null}  // Puedes mantener este valor si no deseas preseleccionar ninguna respuesta
+                                    value={respuestasSeleccionadas[question.id_pregunta] || null}   
                                     onChange={(e) => {
                                         if (!testFinalizado) {
                                             setRespuestasSeleccionadas({
@@ -187,7 +183,7 @@ function TestIA() {
                                         <Box sx={{ display:'flex', flexDirection:'row', alignItems:'center', pl:'13px'}}>
                                             <FormControlLabel
                                                 key={index}
-                                                value={index + 1}  // Puedes ajustar este valor según tus necesidades
+                                                value={index + 1}  
                                                 control={<Radio size="small" disabled={testFinalizado} sx={{ color: colors.blue, '&.Mui-checked': { color: colors.blue } }} />}
                                                 label={<Typography sx={{color:'#607d8b'}}>{respuesta}</Typography>}
                                             />
@@ -248,13 +244,13 @@ function TestIA() {
                         </DialogActions>
                     </Dialog>
                 )}
-                <Box sx={{pt:'30px', pl:'50px', pr:'50px',pb:'20px', display:'flex',flexDirection:'column',gap:'15px', overflowY:'auto' }}>
+                <Box sx={{pt:'30px', pl:'50px', pr:'50px',pb:'20px', display:'flex',flexDirection:'column',gap:'15px'}}>
                     <Typography variant="h3" fontSize="40px" fontWeight="light" color={colors.blue} sx={{display:'flex',flexDirection:'row', alignItems:'end', gap:'20px'}}>
                         Realizar test
                         <QuizIcon sx={{fontSize:'40px'}}/>
                     </Typography>
                 </Box>
-                <Box sx={{height:'52vh', mb:'20px', overflow:'auto', display:'flex', flexDirection:{xs:'column', md:'row'},}}>
+                <Box sx={{height:'100%', mb:'20px', overflow:'auto', display:'flex', flexDirection:{xs:'column', md:'row'},}}>
                     <Box sx={{pl:'65px', pr:{xs:'65px', md:'0px'}, mb:{xs:'15px',md:'0px'} }}>
                         <Typography variant="h6" mb="1vw" fontWeight="light" color={colors.blue} >
                             Selecciona los temas sobre los que desees ser evaluado en el test.
@@ -295,7 +291,7 @@ function TestIA() {
                         </FormControl>
                     </Box>
                 </Box>
-                <Button endIcon={<ExitToAppIcon/>} variant="contained" onClick={handleComenzarTest} sx={{width:'90vw',minWidth:'161px', ml:'5vw', mr:'5vw',boxShadow:0,background:colors.blueSecondary, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
+                <Button endIcon={<ExitToAppIcon/>} variant="contained" onClick={handleComenzarTest} sx={{width:'90vw',minWidth:'161px', ml:'5vw', mr:'5vw',mb:'30px',boxShadow:0,background:colors.blueSecondary, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
                     <Typography>
                         Comenzar test
                     </Typography>

@@ -5,12 +5,11 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const axios = require('axios');
 const OpenAI = require('openai');
 
 dotenv.config();
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3060;
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -317,11 +316,6 @@ app.delete('/deleteUser', (req, res) => {
           });
       });
   });
-});
-
-// Ruta protegida
-app.get('/protected', authenticateToken, (req, res) => {
-  res.json({ message: 'This is a protected route', user: req.user });
 });
 
 app.listen(port, () => {

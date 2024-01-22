@@ -1,6 +1,9 @@
-drop table PRUEBA;
-drop table RETROALIMENTACION;
-drop table USUARIO;
+-- Borrar la base de datos si existe previamente
+DROP DATABASE IF EXISTS dblearning;
+
+-- Crear la base de datos dblearning
+CREATE DATABASE IF NOT EXISTS dblearning;
+USE dblearning;
 
 -- Crear la tabla de usuarios
 CREATE TABLE USUARIO (

@@ -2,8 +2,9 @@ import React from "react";
 import { IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import colors from "../config/config";
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
+import EditIcon from '@mui/icons-material/Edit';
 
-const UsersTable = ({ rows, abrirModalBorrar }) => {
+const UsersTable = ({ rows, abrirModalBorrar, abrirModalEditar }) => {
 
     const headerCellStyle = {
         color: colors.blue,
@@ -42,9 +43,16 @@ const UsersTable = ({ rows, abrirModalBorrar }) => {
                 <TableCell align="left" sx={{color:colors.text, border:'0px'}}>{formatFecha(row.fecha_registro)}</TableCell>
                 <TableCell align="left" sx={{color:colors.text, border:'0px'}}>{row.rol}</TableCell>
                 <TableCell align="left" sx={{ color: colors.red, border: '0px' }}>
-                    <IconButton onClick={() => abrirModalBorrar(row.id)}>
-                        <DeleteForeverRoundedIcon sx={{ color: colors.red }} />
-                    </IconButton>
+                    {row.rol !== "Admin" && (
+                        <IconButton onClick={() => abrirModalEditar(row.id)}>
+                            <EditIcon sx={{ color: colors.blue }} />
+                        </IconButton>
+                    )}
+                    {row.rol !== "Admin" && (
+                        <IconButton onClick={() => abrirModalBorrar(row.id)}>
+                            <DeleteForeverRoundedIcon sx={{ color: colors.red }} />
+                        </IconButton>
+                    )}
                 </TableCell>
             </TableRow>
         ));

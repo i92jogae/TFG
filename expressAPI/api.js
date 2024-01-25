@@ -318,6 +318,41 @@ app.delete('/deleteUser', (req, res) => {
   });
 });
 
+// Edición de usuarios (servicio de admin)
+app.put('/editUser', (req, res) => {
+  const usuario_id = req.query.usuario_id;
+  const { nuevo_nombre, nueva_contrasena, rol } = req.body;
+
+  // Obtiene el nombre y la contraseña actual del usuario para comprobación
+  db.query('SELECT nombre, contrasena FROM USUARIO WHERE id = ?', [usuario_id], async (error, results) => {
+    if (error) {
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+    // Comprueba si el nuevo nombre es igual al actual
+    if (nuevo_nombre === results[0].nombre) {
+      return res.status(400).json({ error: 'El nuevo nombre es igual al actual' });
+    }
+
+    // Comprueba si la nueva contraseña es igual a la actual
+    const passwordMatch = await bcrypt.compare(nueva_contrasena, results[0].contrasena);
+    if (passwordMatch) {
+      return res.status(400).json({ error: 'La nueva contraseña es igual a la actual' });
+    }
+
+    // Hashea la nueva contraseña
+    const hashedPassword = await bcrypt.hash(nueva_contrasena, 10);
+
+    // Actualiza el nombre, contraseña y rol en la base de datos
+    db.query('UPDATE USUARIO SET nombre = ?, contrasena = ?, rol = ? WHERE id = ?', [nuevo_nombre, hashedPassword, rol, usuario_id], (error) => {
+      if (error) {
+        return res.status(500).json({ message: 'Internal Server Error' });
+      }
+      res.status(200).json({ message: 'User updated successfully' });
+    });
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

@@ -24,7 +24,8 @@ function ConsultIA() {
         axios
           .post('http://localhost:3060/sendqueryIA', { query: inputText }, {
             headers:{
-            'Content-Type':'application/json'
+            'Content-Type':'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }}) 
           .then((response) => {
             const assistantReply = response.data;
@@ -40,6 +41,7 @@ function ConsultIA() {
             }, {
               headers:{
                 'Content-Type':'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
               }
             })
             .then((saveResponse) => {

@@ -38,7 +38,8 @@ function MyProfile() {
     useEffect(() => {
         axios.get(`http://localhost:3060/userData?usuario_id=${jwt_decode(localStorage.getItem('token')).id}`,{
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
           }
         })
           .then(response => {
@@ -77,10 +78,13 @@ function MyProfile() {
             //Solicitud para editar el nombre de usuario
             axios
             .put(`http://localhost:3060/editUsername`,
-                { usuario_id: jwt_decode(localStorage.getItem("token")).id, nuevo_nombre: nombre },
+                { 
+                    usuario_id: jwt_decode(localStorage.getItem("token")).id, nuevo_nombre: nombre 
+                },
                 {
                     headers: {
                         "Content-Type": "application/json",
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     },
                 }
             )
@@ -109,12 +113,15 @@ function MyProfile() {
             //Solicitud para editar la contraseña
             axios
             .put(`http://localhost:3060/editPassword`,
-            { usuario_id: jwt_decode(localStorage.getItem("token")).id, nueva_contrasena: pass },
-            {
-                headers: {
-                    "Content-Type": "application/json",
+                { 
+                    usuario_id: jwt_decode(localStorage.getItem("token")).id, nueva_contrasena: pass 
                 },
-            }
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    },
+                }
             )
             .then((response) => {
                 handleCloseModalPass();

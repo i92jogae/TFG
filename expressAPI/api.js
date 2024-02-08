@@ -34,7 +34,9 @@ db.connect((err) => {
 
 // Middleware para comprobar autenticación de usuario
 function authenticateToken(req, res, next) {
-  const token = req.headers['authorization'];
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
   if (!token) return res.sendStatus(401);
 
   jwt.verify(token, secretKey, (err, user) => {
@@ -118,7 +120,7 @@ const openai = new OpenAI({
 });
 
 // Consultas OpenAI
-app.post('/sendqueryIA', async (req, res) => {
+app.post('/sendqueryIA', authenticateToken, async (req, res) => {
   const { query } = req.body; // Obtén la consulta del cuerpo de la solicitud
 
   // Realiza una solicitud a la API de ChatGPT utilizando Axios o tu método preferido
@@ -131,7 +133,7 @@ app.post('/sendqueryIA', async (req, res) => {
 });
 
 //Guardado de consultas
-app.post('/saveConversation', async (req, res) => {
+app.post('/saveConversation', authenticateToken, async (req, res) => {
   try {
     const { usuario_id, consulta, respuesta } = req.body;
 
@@ -152,7 +154,7 @@ app.post('/saveConversation', async (req, res) => {
 });
 
 //Devolución de consultas
-app.get('/userConsults', (req, res) => {
+app.get('/userConsults', authenticateToken, (req, res) => {
   const usuario_id = req.query.usuario_id; 
   // Obtener consultas del usuario desde la base de datos
   db.query('SELECT consulta, respuesta, fecha FROM RETROALIMENTACION WHERE usuario_id = ? ORDER BY fecha DESC', [usuario_id], (error, results) => {
@@ -163,7 +165,7 @@ app.get('/userConsults', (req, res) => {
   });
 });
 //Devolución de datos usuario
-app.get('/userData', (req,res) => {
+app.get('/userData', authenticateToken, (req,res) => {
   const usuario_id = req.query.usuario_id;
   db.query('SELECT nombre, correo FROM USUARIO WHERE id = ?', [usuario_id], (error, results) => {
     if (error) {
@@ -174,7 +176,7 @@ app.get('/userData', (req,res) => {
 });
 
 // Ruta para editar nombre de usuario
-app.put('/editUsername', async (req, res) => {
+app.put('/editUsername', authenticateToken, async (req, res) => {
   try {
     const { usuario_id, nuevo_nombre } = req.body;
 
@@ -203,7 +205,7 @@ app.put('/editUsername', async (req, res) => {
 });
 
 // Ruta para editar contraseña
-app.put('/editPassword', async (req, res) => {
+app.put('/editPassword', authenticateToken, async (req, res) => {
   try {
     const { usuario_id, nueva_contrasena } = req.body;
 
@@ -236,7 +238,7 @@ app.put('/editPassword', async (req, res) => {
 });
 
 // Generador test OpenAI
-app.post('/generateTest', async (req, res) => {
+app.post('/generateTest', authenticateToken, async (req, res) => {
   const { query } = req.body; // Obtén la consulta del cuerpo de la solicitud
   
   // Realiza una solicitud a la API de ChatGPT utilizando Axios o tu método preferido
@@ -249,7 +251,7 @@ app.post('/generateTest', async (req, res) => {
 });
 
 // Guardado de resultados del test
-app.post('/saveMark', async (req, res) => {
+app.post('/saveMark', authenticateToken, async (req, res) => {
   try {
     const { usuario_id, calificacion, dificultad, temas } = req.body;
     // Inserta la conversación en la tabla de retroalimentación
@@ -269,7 +271,7 @@ app.post('/saveMark', async (req, res) => {
 });
 
 //Devolución de resultados
-app.get('/userMarks', (req, res) => {
+app.get('/userMarks', authenticateToken, (req, res) => {
   const usuario_id = req.query.usuario_id; 
   // Obtener resultados del usuario desde la base de datos
   db.query('SELECT fecha, calificacion, dificultad, temas FROM PRUEBA WHERE usuario_id = ? ORDER BY fecha DESC', [usuario_id], (error, results) => {
@@ -281,7 +283,7 @@ app.get('/userMarks', (req, res) => {
 });
 
 //Devolución de usuarios (servicio de admin)
-app.get('/users', (req, res) => {
+app.get('/users', authenticateToken, (req, res) => {
   // Obtener usuarios de la base de datos
   db.query('SELECT id, nombre, correo, rol, fecha_registro FROM USUARIO ORDER BY fecha_registro DESC', (error, results) => {
     if (error) {
@@ -292,7 +294,7 @@ app.get('/users', (req, res) => {
 });
 
 // Borrado de usuarios (servicio de admin)
-app.delete('/deleteUser', (req, res) => {
+app.delete('/deleteUser', authenticateToken, (req, res) => {
   const usuario_id = req.query.usuario_id;
 
   // 1. Borrar registros de RETROALIMENTACION
@@ -319,7 +321,7 @@ app.delete('/deleteUser', (req, res) => {
 });
 
 // Edición de usuarios (servicio de admin)
-app.put('/editUser', (req, res) => {
+app.put('/editUser', authenticateToken, (req, res) => {
   const usuario_id = req.query.usuario_id;
   const { nuevo_nombre, nueva_contrasena, rol } = req.body;
 

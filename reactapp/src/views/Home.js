@@ -20,6 +20,7 @@ import fondo_final from '../images/fondo_final.png';
 const cardtext1="Con nuestro chat de consultas inteligente puedes formular preguntas de cualquier área de base de datos. Integramos la Inteligencia Artificial de ChatGPT, haciendo las respuestas lo más precisas posible.";
 const cardtext2="Con nuestro sistema de test automáticos generados por IA puedes poner en práctica tus conocimientos de forma personalizada: puedes elegir la dificultad y el/los tema/s que deseas practicar";
 const cardtext3="Con nuestro sistema de retroalimentación puedes seguir tu progreso. Te ofrecemos un historial de consultas y de test realizados pudiendo revisar las respuestas y resultados obtenidos en cualquier momento";
+
 function Home() {
   const navigate = useNavigate();
 

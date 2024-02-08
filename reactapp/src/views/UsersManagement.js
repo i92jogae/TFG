@@ -44,7 +44,8 @@ function UsersManagement() {
     const fetchUserItems = () => {
         axios.get(`http://localhost:3060/users`,{
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
             }
         })
         .then(response => {
@@ -92,7 +93,7 @@ function UsersManagement() {
     const editarUsuario = () => {
         const nombre = document.getElementById("username").value;
         const pass = document.getElementById("password").value;
-        console.log(rol);
+        
         if (nombre==="" || pass==="" || rol==="") {
             setError("Por favor, introduce un usuario y contraseña válidos y selecciona un rol.");
         } else if (pass.length<8 || !(/\d/.test(pass))) {
@@ -106,6 +107,7 @@ function UsersManagement() {
                     {
                         headers: {
                             "Content-Type": "application/json",
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
                         },
                     }
                 )
@@ -129,6 +131,7 @@ function UsersManagement() {
                 {
                     headers: {
                         "Content-Type": "application/json",
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     },
                 }
             )

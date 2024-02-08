@@ -57,12 +57,19 @@ function TestIA() {
     };
     const handleComenzarTest = async () => {
         if (temasSeleccionados.length > 0) {
-            try {
+            try { 
                 setLoadingTest(true);
-                const response = await axios.post(
-                    'http://localhost:3060/generateTest',
-                    { query: `Genera un test sobre bases de datos, sobre los siguientes temas: ${temasSeleccionados.join(', ')} . De dificultad ${dificultadSeleccionada}, que conste de 11 preguntas. Quiero que me devuelvas únicamente un array, en el que se incluya las variables "id_pregunta", "pregunta", "respuestas", "id_respuesta_correcta" por cada pregunta generada. No incluyas texto adicional, el id_respuesta_correcta debe ser un número` },
-                    { headers: { 'Content-Type': 'application/json' } }
+                const response = await axios
+                .post('http://localhost:3060/generateTest',
+                    { 
+                        query: `Genera un test sobre bases de datos, sobre los siguientes temas: ${temasSeleccionados.join(', ')} . De dificultad ${dificultadSeleccionada}, que conste de 11 preguntas. Quiero que me devuelvas únicamente un array, en el que se incluya las variables "id_pregunta", "pregunta", "respuestas", "id_respuesta_correcta" por cada pregunta generada. No incluyas texto adicional, el id_respuesta_correcta debe ser un número` 
+                    },
+                    { 
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        } 
+                    }
                 );
                 const cleanedResponse = response.data.substring(response.data.indexOf('['), response.data.lastIndexOf(']') + 1);
                 const generatedTestObject = JSON.parse(cleanedResponse);
@@ -100,6 +107,7 @@ function TestIA() {
         }, {
             headers:{
                 'Content-Type':'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
             }
         })
         .then((saveResponse) => {

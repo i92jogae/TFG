@@ -19,7 +19,8 @@ function MyResults() {
     useEffect(() => {
         axios.get(`http://localhost:3060/userMarks?usuario_id=${jwt_decode(localStorage.getItem('token')).id}`,{
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
           }
         })
           .then(response => {

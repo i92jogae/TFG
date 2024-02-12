@@ -10,6 +10,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
+//Creación de estilos para los modales
 const style = {
     position: 'absolute',
     top: '50%',
@@ -217,7 +218,6 @@ function UsersManagement() {
                     </Box>
                 </Fade>
             </Modal>
-            {/*********************************************************************/}
             <Modal
                 open={modalBorrarAbierto}
                 closeAfterTransition

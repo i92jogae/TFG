@@ -105,7 +105,7 @@ app.post('/login', async (req, res) => {
       }
       // Generación del JWT token para la sesión
       const token = jwt.sign({ id: results[0].id, nombre: results[0].nombre, correo: results[0].correo, rol: results[0].rol }, secretKey, {
-        expiresIn: '3h', // Token expires in 1 hour
+        expiresIn: '3h', // Tiempo de expiración del token: 3h
       });
 
       res.json({ token: token });
@@ -116,14 +116,13 @@ app.post('/login', async (req, res) => {
 });
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // defaults to process.env["OPENAI_API_KEY"]
+  apiKey: process.env.OPENAI_API_KEY, 
 });
 
 // Consultas OpenAI
 app.post('/sendqueryIA', authenticateToken, async (req, res) => {
-  const { query } = req.body; // Obtén la consulta del cuerpo de la solicitud
+  const { query } = req.body; 
 
-  // Realiza una solicitud a la API de ChatGPT utilizando Axios o tu método preferido
   const chatGptResponse = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo',
     messages: [{role:'user' ,content: query}],

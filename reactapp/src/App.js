@@ -42,6 +42,7 @@ function App() {
     }
   };
 
+  //Gestión de rutas de la aplicación
   return (
       <BrowserRouter>
         <Routes>

@@ -62,7 +62,7 @@ function TestIA() {
                 const response = await axios
                 .post('http://localhost:3060/generateTest',
                     { 
-                        query: `Genera un test sobre bases de datos, sobre los siguientes temas: ${temasSeleccionados.join(', ')} . De dificultad ${dificultadSeleccionada}, que conste de 11 preguntas. Quiero que me devuelvas únicamente un array, en el que se incluya las variables "id_pregunta", "pregunta", "respuestas", "id_respuesta_correcta" por cada pregunta generada. No incluyas texto adicional, el id_respuesta_correcta debe ser un número` 
+                        query: `Genera un test sobre bases de datos, sobre los siguientes temas: ${temasSeleccionados.join(', ')} . De dificultad ${dificultadSeleccionada}, que conste de 11 preguntas. Quiero que me devuelvas únicamente un array, en el que se incluya las variables "id_pregunta", "pregunta", "respuestas", "id_respuesta_correcta" por cada pregunta generada. No incluyas texto adicional, el id_respuesta_correcta debe ser un número del 1 al 4` 
                     },
                     { 
                         headers: { 
@@ -149,7 +149,7 @@ function TestIA() {
             {loadingTest ? (
                 <Box sx={{ display: 'flex', overflow:'hidden', flexDirection:'column', height:'88vh' ,justifyContent: 'center', alignItems: 'center', gap:'50px'}}>
                     <CircularProgress size={55}/>
-                    <Typography variant="h7" color="#607d8b">Generando parámetros del test... Puede tardar unos minutos</Typography>
+                    <Typography variant="h7" color="#607d8b">Generación del test en curso... Este proceso puede requerir algo de tiempo</Typography>
                 </Box>
             ) : generatedTest ? (
                 <Box sx={{height:'100%', display:'flex', flexDirection:'column',pt:'60px',pb:'60px', pr:'60px', pl:'60px' , overflowY:'auto', gap:'20px'}}>

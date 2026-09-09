@@ -4,7 +4,24 @@ const { asyncHandler } = require('../../shared/asyncHandler')
 const { validateRequiredFields, isNonEmptyString } = require('../../utils/validation')
 
 const ADMIN_ROLE = 'Admin'
-const USER_ROLES = [ADMIN_ROLE, 'Usuario']
+const STUDENT_ROLE = 'Usuario Generico'
+const LEGACY_STUDENT_ROLE = 'Usuario'
+
+const ROLE_ALIASES = {
+  [ADMIN_ROLE]: ADMIN_ROLE,
+  Administrador: ADMIN_ROLE,
+  [STUDENT_ROLE]: STUDENT_ROLE,
+  [LEGACY_STUDENT_ROLE]: STUDENT_ROLE,
+  Estudiante: STUDENT_ROLE
+}
+
+function normalizeUserRole(role) {
+  if (!isNonEmptyString(role)) {
+    return null
+  }
+
+  return ROLE_ALIASES[role.trim()] || null
+}
 
 function parseUserId(value) {
   const id = Number(value)
@@ -19,7 +36,7 @@ function parseUserId(value) {
 function createUsersRepository(db) {
   return {
     async findPublicDataById(id) {
-      const [rows] = await db.execute('SELECT nombre, correo FROM USUARIO WHERE id = ?', [id])
+      const [rows] = await db.execute('SELECT nombre, correo, rol FROM USUARIO WHERE id = ?', [id])
       return rows[0] || null
     },
 
@@ -167,7 +184,9 @@ function createUsersService({ usersRepository, bcrypt }) {
         throw notFound('User not found', 'USER_NOT_FOUND')
       }
 
-      if (!USER_ROLES.includes(payload.rol)) {
+      const normalizedRole = normalizeUserRole(payload.rol)
+
+      if (!normalizedRole) {
         throw badRequest('Invalid user role', 'INVALID_USER_ROLE')
       }
 
@@ -177,7 +196,7 @@ function createUsersService({ usersRepository, bcrypt }) {
 
       const passwordMatch = await bcrypt.compare(payload.nueva_contrasena, user.contrasena)
 
-      if (payload.nuevo_nombre.trim() === user.nombre && passwordMatch && payload.rol === user.rol) {
+      if (payload.nuevo_nombre.trim() === user.nombre && passwordMatch && normalizedRole === user.rol) {
         throw badRequest('No hay cambios para actualizar', 'NO_CHANGES')
       }
 
@@ -187,7 +206,7 @@ function createUsersService({ usersRepository, bcrypt }) {
         id,
         nombre: payload.nuevo_nombre.trim(),
         contrasena: hashedPassword,
-        rol: payload.rol
+        rol: normalizedRole
       })
     }
   }
@@ -233,5 +252,6 @@ module.exports = {
   createUsersRepository,
   createUsersRouter,
   createUsersService,
+  normalizeUserRole,
   parseUserId
 }

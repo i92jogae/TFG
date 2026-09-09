@@ -2,6 +2,18 @@ function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0
 }
 
+function hasRequiredValue(value) {
+  if (value === undefined || value === null) {
+    return false
+  }
+
+  if (typeof value === 'string') {
+    return value.trim().length > 0
+  }
+
+  return true
+}
+
 function isValidEmail(value) {
   return isNonEmptyString(value) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
 }
@@ -39,10 +51,11 @@ function validateLoginPayload(payload = {}) {
 }
 
 function validateRequiredFields(payload = {}, fields = []) {
-  return fields.filter((field) => !isNonEmptyString(payload[field]))
+  return fields.filter((field) => !hasRequiredValue(payload[field]))
 }
 
 module.exports = {
+  hasRequiredValue,
   isNonEmptyString,
   isValidEmail,
   validateLoginPayload,

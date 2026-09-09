@@ -1,297 +1,334 @@
-import React, { useEffect, useState } from "react";
-import { Backdrop, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fade, FormControl, IconButton, Input, InputAdornment, InputLabel, MenuItem, Modal, Select, Slide, TextField, Typography } from "@mui/material";
-import MenuDB from "../components/Menu";
-import '../styles/UsersManagement.css';
-import colors from "../config/config";
-import GroupIcon from '@mui/icons-material/Group';
-import axios from "axios";
-import UsersTable from "../components/UsersTable";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import React, { useState } from 'react'
+import {
+  Alert,
+  Backdrop,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Fade,
+  FormControl,
+  IconButton,
+  Input,
+  InputAdornment,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Modal,
+  Select,
+  Slide,
+  TextField,
+  Typography
+} from '@mui/material'
+import GroupIcon from '@mui/icons-material/Group'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+import UsersTable from '../components/UsersTable'
+import { PageHeader, PageLayout, SurfaceCard } from '../components/layout/PageLayout'
+import { useUsersManagement } from '../hooks/useUsersManagement'
+import colors from '../config/config'
 
-//Creación de estilos para los modales
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #42a5f5',
-    boxShadow: 24,
-    p: 4,
-};
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: { xs: 'calc(100vw - 32px)', sm: 440 },
+  maxHeight: '90vh',
+  overflowY: 'auto',
+  bgcolor: 'background.paper',
+  border: '1px solid rgba(66, 165, 245, 0.28)',
+  borderRadius: 4,
+  boxShadow: 24,
+  p: { xs: 3, sm: 4 }
+}
+
 const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
+  return <Slide direction="up" ref={ref} {...props} />
+})
+
+const initialEditForm = {
+  nombre: '',
+  password: '',
+  rol: ''
+}
 
 function UsersManagement() {
+  const { users, loading, actionLoading, error, setError, editUser, removeUser } = useUsersManagement()
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [selectedUserId, setSelectedUserId] = useState(null)
+  const [deleted, setDeleted] = useState(false)
+  const [edited, setEdited] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [editForm, setEditForm] = useState(initialEditForm)
 
-    const [usuarios, setUsuarios] = useState([]);
-    const [modalBorrarAbierto, setModalBorrarAbierto] = useState(false);
-    const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
-    const [idUsuario, setIdUsuario] = useState(null);
-    const [borrado, setBorrado] = useState(false);
-    const [editado, setEditado] = useState(false);
-    const [mostrarContraseña, setMostrarContraseña] = useState(false);
-    const [rol, setRol] = useState("");
-    const [error, setError] = useState("");
+  const selectedUser = users.find((user) => user.id === selectedUserId)
 
-    useEffect(() => {
-        fetchUserItems();
-    }, []); 
-    
-    const fetchUserItems = () => {
-        axios.get(`http://localhost:3060/users`,{
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            }
-        })
-        .then(response => {
-            setUsuarios(response.data);
-        })
-        .catch(error => {
-            alert('Se ha producido un error al recuperar los usuarios. ', error);
-        });
-    };
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false)
+    setSelectedUserId(null)
+  }
 
-    //Manejadores para borrar
-    const cerrarModalBorrar = () => {
-        setModalBorrarAbierto(false);
+  const openDeleteModal = (id) => {
+    setSelectedUserId(id)
+    setDeleteModalOpen(true)
+    setError('')
+  }
+
+  const closeEditModal = () => {
+    setEditModalOpen(false)
+    setSelectedUserId(null)
+    setEditForm(initialEditForm)
+    setFormError('')
+    setShowPassword(false)
+  }
+
+  const openEditModal = (id) => {
+    const userToEdit = users.find((user) => user.id === id)
+
+    setSelectedUserId(id)
+    setEditForm({
+      nombre: userToEdit?.nombre || '',
+      password: '',
+      rol: userToEdit?.rol || ''
+    })
+    setFormError('')
+    setError('')
+    setEditModalOpen(true)
+  }
+
+  const updateEditForm = (field) => (event) => {
+    setEditForm((currentForm) => ({ ...currentForm, [field]: event.target.value }))
+  }
+
+  const closeEditedDialog = () => {
+    setEdited(false)
+  }
+
+  const closeDeletedDialog = () => {
+    setDeleted(false)
+  }
+
+  const validateEditForm = () => {
+    if (!editForm.nombre.trim() || !editForm.password.trim() || !editForm.rol) {
+      return 'Por favor, introduce un usuario y contraseña válidos y selecciona un rol.'
     }
-    const abrirModalBorrar = (id) => {
-        setIdUsuario(id);
-        setModalBorrarAbierto(true);
-    };
 
-    //Manejadores para editar
-    const cerrarModalEditar = () => {
-        setRol("");
-        setModalEditarAbierto(false);
-        setError("");
+    if (editForm.password.length < 8 || !/\d/.test(editForm.password)) {
+      return 'La contraseña debe tener al menos 8 caracteres y un número.'
     }
-    const abrirModalEditar = (id) => {
-        setIdUsuario(id);
-        setModalEditarAbierto(true);
-    };
 
-    const handleClickMostrarContraseña = () => {
-        setMostrarContraseña((show) => !show);
-    };
-    
-    const handleRolChange = (event) => {
-        setRol(event.target.value);
-    };
+    return ''
+  }
 
-    const cerrarDialogoEdicion = () => {
-        setEditado(false);
-    };
-    const cerrarDialogoBorrado = () => {
-        setBorrado(false);
-    };
-    const editarUsuario = () => {
-        const nombre = document.getElementById("username").value;
-        const pass = document.getElementById("password").value;
-        
-        if (nombre==="" || pass==="" || rol==="") {
-            setError("Por favor, introduce un usuario y contraseña válidos y selecciona un rol.");
-        } else if (pass.length<8 || !(/\d/.test(pass))) {
-            setError("La contraseña debe tener al menos 8 caracteres y un número.");
-        } else {
-            axios
-                .put(`http://localhost:3060/editUser?usuario_id=${idUsuario}`,
-                    {
-                        nuevo_nombre: nombre, nueva_contrasena: pass, rol: rol,
-                    },
-                    {
-                        headers: {
-                            "Content-Type": "application/json",
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        },
-                    }
-                )
-                .then( () => {
-                    fetchUserItems();
-                    cerrarModalEditar();
-                    setEditado(true);
-                })
-                .catch((error) => {
-                    if (error.response.status === 400) {
-                        setError(error.response.data.error);
-                    } else {
-                        alert("Error al modificar el usuario, inténtelo de nuevo");
-                    }
-                })
-        }
-    };
-    const borrarUsuario = () => {
-        axios
-            .delete(`http://localhost:3060/deleteUser?usuario_id=${idUsuario}`,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    },
+  const handleEditUser = async () => {
+    const validationError = validateEditForm()
+
+    if (validationError) {
+      setFormError(validationError)
+      return
+    }
+
+    try {
+      await editUser({
+        usuarioId: selectedUserId,
+        nuevoNombre: editForm.nombre.trim(),
+        nuevaContrasena: editForm.password,
+        rol: editForm.rol
+      })
+      closeEditModal()
+      setEdited(true)
+    } catch {
+      setFormError('')
+    }
+  }
+
+  const handleDeleteUser = async () => {
+    try {
+      await removeUser(selectedUserId)
+      closeDeleteModal()
+      setDeleted(true)
+    } catch {
+      // El mensaje de error ya queda gestionado por el hook.
+    }
+  }
+
+  return (
+    <PageLayout maxWidth="1180px" spacing={3}>
+      <PageHeader
+        eyebrow="Panel de administración"
+        title="Usuarios"
+        icon={GroupIcon}
+        description="Gestiona los usuarios registrados en la plataforma, edita sus datos principales o elimina cuentas junto con su actividad asociada."
+      />
+
+      {error && <Alert severity="error" onClose={() => setError('')}>{error}</Alert>}
+
+      <SurfaceCard sx={{ p: { xs: 1.5, md: 2 }, overflowX: 'auto' }}>
+        {loading && <LinearProgress sx={{ mb: 2 }} />}
+        <UsersTable rows={users} abrirModalBorrar={openDeleteModal} abrirModalEditar={openEditModal} />
+      </SurfaceCard>
+
+      <Modal
+        open={editModalOpen}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{ backdrop: { timeout: 500 } }}
+      >
+        <Fade in={editModalOpen}>
+          <Box sx={modalStyle}>
+            <Typography color={colors.blue} variant="h5" sx={{ fontWeight: 700 }}>
+              Editar datos de usuario
+            </Typography>
+            {selectedUser && (
+              <Typography sx={{ color: colors.text, mt: 1, mb: 1.5 }}>
+                Usuario seleccionado: {selectedUser.nombre}
+              </Typography>
+            )}
+
+            <TextField
+              sx={{ mt: 1.5, mb: 1.5 }}
+              required
+              fullWidth
+              id="username"
+              label="Nuevo nombre de usuario"
+              variant="standard"
+              value={editForm.nombre}
+              onChange={updateEditForm('nombre')}
+            />
+            <FormControl fullWidth required variant="standard" sx={{ mb: 1.5 }}>
+              <InputLabel>Nueva contraseña</InputLabel>
+              <Input
+                id="password"
+                value={editForm.password}
+                onChange={updateEditForm('password')}
+                type={showPassword ? 'text' : 'password'}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword((currentValue) => !currentValue)}>
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
                 }
-            )
-            .then((response) => {
-                fetchUserItems();
-                cerrarModalBorrar();
-                setBorrado(true);
-            })
-            .catch((error) => {
-                alert('Se ha producido un error al borrar el usuario, inténtelo de nuevo. ', error);
-            });
-    };
-    return (
-        <Box sx={{minHeight:'100vh', margin: 0, }}>
-            <MenuDB/>
-            <Box sx={{display:'flex',flexDirection:'column', pt:'30px', pb:'40px', pr:'60px', pl:'60px', gap:'15px', overflow:'auto'}} >
-                <Typography variant="h3" fontSize="40px" fontWeight="light" color={colors.blue} sx={{display:'flex',flexDirection:'row', alignItems:'end', gap:'20px',}}>
-                    Usuarios  
-                    <GroupIcon sx={{fontSize:'40px'}}/>
-                </Typography>
-                <UsersTable rows={usuarios} abrirModalBorrar={abrirModalBorrar} abrirModalEditar={abrirModalEditar} />
+              />
+            </FormControl>
+
+            <FormControl fullWidth variant="standard">
+              <InputLabel id="selectRolLabel">Rol</InputLabel>
+              <Select
+                labelId="selectRolLabel"
+                id="selectRol"
+                value={editForm.rol}
+                label="Rol"
+                onChange={updateEditForm('rol')}
+              >
+                <MenuItem value="Usuario Generico">Estudiante</MenuItem>
+                <MenuItem value="Admin">Administrador</MenuItem>
+              </Select>
+            </FormControl>
+
+            {formError && (
+              <Typography sx={{ color: '#e57373', mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <ErrorOutlineIcon />
+                {formError}
+              </Typography>
+            )}
+
+            <Box sx={{ display: 'flex', gap: 1.5, mt: 4, flexDirection: { xs: 'column', sm: 'row' } }}>
+              <Button
+                variant="contained"
+                onClick={handleEditUser}
+                disabled={actionLoading}
+                sx={{ flex: 1, background: colors.blue, textTransform: 'none', '&:hover': { background: colors.blue, boxShadow: 9 } }}
+              >
+                <Typography sx={{ fontWeight: 600 }}>Confirmar</Typography>
+              </Button>
+              <Button
+                variant="contained"
+                onClick={closeEditModal}
+                disabled={actionLoading}
+                sx={{ flex: 1, background: colors.red, textTransform: 'none', '&:hover': { background: colors.red, boxShadow: 9 } }}
+              >
+                <Typography sx={{ fontWeight: 600 }}>Cancelar</Typography>
+              </Button>
             </Box>
-            <Modal
-                open={modalEditarAbierto}
-                closeAfterTransition
-                slots={{backdrop:Backdrop}}
-                slotProps={{
-                    backdrop: {
-                        timeout: 500,
-                    }
-                }}
-            >
-                <Fade in={modalEditarAbierto}>
-                    <Box sx={style}>
-                        <Typography color={colors.blue} variant="h5" >
-                            Editar datos de usuario
-                        </Typography>
-                        
-                        <TextField sx={{mt:'15px', mb:'6px', color:colors.blue}} required fullWidth id="username" label="Nuevo nombre de usuario" variant="standard" />
-                        <FormControl fullWidth required variant="standard" sx={{mb:'6px'}}>
-                            <InputLabel>Nueva contraseña</InputLabel>
-                            <Input
-                                id="password"
-                                type={mostrarContraseña ? 'text' : 'password'}
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={handleClickMostrarContraseña}
-                                        >
-                                            {mostrarContraseña ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                            />
-                        </FormControl>
-                                                
-                        <FormControl fullWidth variant="standard">
-                            <InputLabel id="selectRol">Rol</InputLabel>
-                            <Select
-                                labelId="selectRol"
-                                id="selectRol"
-                                value={rol}
-                                label="Rol"
-                                onChange={handleRolChange}
-                            >
-                                <MenuItem value={"Usuario Generico"}>Estudiante</MenuItem>
-                                <MenuItem value={"Admin"}>Administrador</MenuItem>
-                            </Select>
-                        </FormControl>
-                        
-                        {error && (
-                            <Typography sx={{ color: '#e57373',  mt:'10px', display:'flex', alignItems:'center'}}>
-                                <ErrorOutlineIcon sx={{mr:'5px'}}/>{error}
-                            </Typography>
-                        )}
-                        
-                        <Button variant="contained" onClick={editarUsuario} sx={{width:'30%', mt:'35px', mr:'10px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:9}}}>
-                            <Typography sx={{fontWeight:'500'}}>Confirmar</Typography>
-                        </Button>
-                        <Button variant="contained" onClick={cerrarModalEditar} sx={{ width:'30%', mt:'35px', background:colors.red, textTransform:'none', "&:hover": {background:colors.red, boxShadow:9}}}>
-                            <Typography sx={{fontWeight:'500'}}>Cancelar</Typography>
-                        </Button>
-                    </Box>
-                </Fade>
-            </Modal>
-            <Modal
-                open={modalBorrarAbierto}
-                closeAfterTransition
-                slots={{backdrop:Backdrop}}
-                slotProps={{
-                    backdrop: {
-                        timeout: 500,
-                    }
-                }}
-            >
-                <Fade in={modalBorrarAbierto}>
-                    <Box sx={style}>
-                        <Typography color={colors.blue} variant="h5" >
-                            ¿Está seguro de que quiere eliminar el usuario?
-                        </Typography>
-                        <Button variant="contained" onClick={borrarUsuario} sx={{width:'30%', mt:'40px', mr:'10px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:9}}}>
-                            <Typography sx={{fontWeight:'500'}}>Confirmar</Typography>
-                        </Button>
-                        <Button variant="contained" onClick={cerrarModalBorrar} sx={{ width:'30%', mt:'40px', background:colors.red, textTransform:'none', "&:hover": {background:colors.red, boxShadow:9}}}>
-                            <Typography sx={{fontWeight:'500'}}>Cancelar</Typography>
-                        </Button>
-                    </Box>
-                </Fade>
-            </Modal>
+          </Box>
+        </Fade>
+      </Modal>
 
-            <Dialog
-                open={editado}
-                TransitionComponent={Transition}
-                keepMounted
-                onClose={cerrarDialogoEdicion}
-                aria-describedby="alert-dialog-slide-description"
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle color={colors.blue} >{"Se ha actualizado correctamente"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description" fontWeight="Light" color={colors.blue} fontSize="large">
-                        La información del usuario se ha editado con éxito.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="contained" onClick={cerrarDialogoEdicion} sx={{background:colors.blue,opacity:'80%', textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
-                    <Typography>
-                        Continuar
-                    </Typography>
-                    </Button>
-                </DialogActions>
-            </Dialog>
+      <Modal
+        open={deleteModalOpen}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{ backdrop: { timeout: 500 } }}
+      >
+        <Fade in={deleteModalOpen}>
+          <Box sx={modalStyle}>
+            <Typography color={colors.blue} variant="h5" sx={{ fontWeight: 700 }}>
+              ¿Está seguro de que quiere eliminar el usuario?
+            </Typography>
+            {selectedUser && (
+              <Typography sx={{ color: colors.text, mt: 1.5 }}>
+                Se eliminará la cuenta de {selectedUser.nombre}, sus consultas y sus test asociados.
+              </Typography>
+            )}
+            <Box sx={{ display: 'flex', gap: 1.5, mt: 4, flexDirection: { xs: 'column', sm: 'row' } }}>
+              <Button
+                variant="contained"
+                onClick={handleDeleteUser}
+                disabled={actionLoading}
+                sx={{ flex: 1, background: colors.blue, textTransform: 'none', '&:hover': { background: colors.blue, boxShadow: 9 } }}
+              >
+                <Typography sx={{ fontWeight: 600 }}>Confirmar</Typography>
+              </Button>
+              <Button
+                variant="contained"
+                onClick={closeDeleteModal}
+                disabled={actionLoading}
+                sx={{ flex: 1, background: colors.red, textTransform: 'none', '&:hover': { background: colors.red, boxShadow: 9 } }}
+              >
+                <Typography sx={{ fontWeight: 600 }}>Cancelar</Typography>
+              </Button>
+            </Box>
+          </Box>
+        </Fade>
+      </Modal>
 
-            <Dialog
-                open={borrado}
-                TransitionComponent={Transition}
-                keepMounted
-                onClose={cerrarDialogoBorrado}
-                aria-describedby="alert-dialog-slide-description"
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle color={colors.blue} >{"Se ha eliminado correctamente"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description" fontWeight="Light" color={colors.blue} fontSize="large">
-                        El usuario se ha eliminado con éxito, así como sus consultas y test asociados.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="contained" onClick={cerrarDialogoBorrado} sx={{background:colors.blue,opacity:'80%', textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
-                    <Typography>
-                        Continuar
-                    </Typography>
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Box>
-    );
-};
+      <Dialog open={edited} TransitionComponent={Transition} keepMounted onClose={closeEditedDialog} fullWidth maxWidth="sm">
+        <DialogTitle color={colors.blue}>{'Se ha actualizado correctamente'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText fontWeight="Light" color={colors.blue} fontSize="large">
+            La información del usuario se ha editado con éxito.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={closeEditedDialog} sx={{ background: colors.blue, opacity: '80%', textTransform: 'none', '&:hover': { background: colors.blue, boxShadow: 6 } }}>
+            <Typography>Continuar</Typography>
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-export default UsersManagement;
+      <Dialog open={deleted} TransitionComponent={Transition} keepMounted onClose={closeDeletedDialog} fullWidth maxWidth="sm">
+        <DialogTitle color={colors.blue}>{'Se ha eliminado correctamente'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText fontWeight="Light" color={colors.blue} fontSize="large">
+            El usuario se ha eliminado con éxito, así como sus consultas y test asociados.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={closeDeletedDialog} sx={{ background: colors.blue, opacity: '80%', textTransform: 'none', '&:hover': { background: colors.blue, boxShadow: 6 } }}>
+            <Typography>Continuar</Typography>
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </PageLayout>
+  )
+}
+
+export default UsersManagement

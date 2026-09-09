@@ -1,6 +1,7 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
 const {
+  hasRequiredValue,
   isNonEmptyString,
   isValidEmail,
   validateLoginPayload,
@@ -12,6 +13,15 @@ test('isNonEmptyString validates trimmed strings', () => {
   assert.equal(isNonEmptyString('DB Learning'), true)
   assert.equal(isNonEmptyString('   '), false)
   assert.equal(isNonEmptyString(null), false)
+})
+
+test('hasRequiredValue accepts valid non-string payload values', () => {
+  assert.equal(hasRequiredValue(1), true)
+  assert.equal(hasRequiredValue(0), true)
+  assert.equal(hasRequiredValue(false), true)
+  assert.equal(hasRequiredValue(null), false)
+  assert.equal(hasRequiredValue(undefined), false)
+  assert.equal(hasRequiredValue('   '), false)
 })
 
 test('isValidEmail validates common email format', () => {
@@ -35,8 +45,9 @@ test('validateLoginPayload accepts valid credentials payload', () => {
   assert.deepEqual(errors, [])
 })
 
-test('validateRequiredFields returns missing fields', () => {
-  const missingFields = validateRequiredFields({ query: 'Explain SQL joins', respuesta: '' }, [
+test('validateRequiredFields returns missing fields without rejecting numeric ids', () => {
+  const missingFields = validateRequiredFields({ usuario_id: 12, query: 'Explain SQL joins', respuesta: '' }, [
+    'usuario_id',
     'query',
     'respuesta'
   ])

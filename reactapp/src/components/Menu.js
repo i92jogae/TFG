@@ -1,262 +1,224 @@
-import React from "react";
-import Typography from '@mui/material/Typography';
-import { useState } from "react";
-import colors from "../config/config";
-import { useNavigate } from "react-router-dom";
-import '../styles/Home.css';
-import jwt_decode from "jwt-decode";
-import {AppBar, Box, Toolbar, IconButton, Menu, Container, Button, Tooltip, MenuItem } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import StorageIcon from '@mui/icons-material/Storage';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
-import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle';
-import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import SearchIcon from '@mui/icons-material/Search';
-import PersonIcon from '@mui/icons-material/Person';
-import LogoutIcon from '@mui/icons-material/Logout';
-import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
-import GroupIcon from '@mui/icons-material/Group';
+import { useState } from 'react'
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Divider,
+  IconButton,
+  Menu as DropdownMenu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+  Typography
+} from '@mui/material'
+import { useLocation, useNavigate } from 'react-router-dom'
+import MenuIcon from '@mui/icons-material/Menu'
+import StorageIcon from '@mui/icons-material/Storage'
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
+import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle'
+import TaskAltIcon from '@mui/icons-material/TaskAlt'
+import SearchIcon from '@mui/icons-material/Search'
+import PersonIcon from '@mui/icons-material/Person'
+import LogoutIcon from '@mui/icons-material/Logout'
+import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined'
+import GroupIcon from '@mui/icons-material/Group'
+import colors from '../config/config'
+import { clearStoredToken, getCurrentUser, isAdmin } from '../utils/auth'
+
+const navigationItems = [
+  {
+    label: 'Consultar IA',
+    desktopLabel: 'Consultar IA',
+    path: '/consultIA',
+    icon: SearchIcon
+  },
+  {
+    label: 'Mis consultas',
+    desktopLabel: 'Consultas realizadas',
+    path: '/myconsults',
+    icon: QuestionAnswerIcon
+  },
+  {
+    label: 'Realizar test',
+    desktopLabel: 'Realizar test',
+    path: '/testIA',
+    icon: PlaylistAddCheckCircleIcon
+  },
+  {
+    label: 'Mis resultados',
+    desktopLabel: 'Mis resultados',
+    path: '/myresults',
+    icon: TaskAltIcon
+  }
+]
 
 function MenuDB() {
-    const navigate = useNavigate();
-    const [anchorElNav, setAnchorElNav] = useState(null);
-    const [anchorElUser, setAnchorElUser] = useState(null);
-    let nameUser = jwt_decode(localStorage.getItem('token')).nombre;
-    const rol = jwt_decode(localStorage.getItem('token')).rol;
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [anchorElNav, setAnchorElNav] = useState(null)
+  const [anchorElUser, setAnchorElUser] = useState(null)
+  const currentUser = getCurrentUser()
+  const userName = currentUser?.nombre || 'Usuario'
+  const userInitial = userName.substring(0, 1).toUpperCase()
+  const canManageUsers = isAdmin()
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        navigate('/');
-        window.location.reload();
-    }
-    const handleLogoClick = () => {
-        navigate('/');
-    };
-    const handleButtonConsultarIA = () => {
-        navigate('/consultIA');
-    };
-    const handleButtonMisConsultas = () => {
-        navigate('/myconsults');
-    };
-    const handleButtonRealizarTest = () => {
-        navigate('/testIA');
-    };
-    const handleButtonMisResultados = () => {
-        navigate('/myresults');
-    };
-    const handleMiPerfil = () => {
-        navigate('/myprofile');
-    };
-    const handleGestionUsuarios = () => {
-        navigate('/usersmanagement');
-    };
-    
-    const handleOpenNavMenu = (event) => {
-        setAnchorElNav(event.currentTarget);
-    };
-    const handleOpenUserMenu = (event) => {
-        setAnchorElUser(event.currentTarget);
-    };
+  const closeMenus = () => {
+    setAnchorElNav(null)
+    setAnchorElUser(null)
+  }
 
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
-    };
+  const handleNavigate = (path) => {
+    closeMenus()
+    navigate(path)
+  }
 
-    const handleCloseUserMenu = () => {
-        setAnchorElUser(null);
-    };
-    
-    return (
-        <AppBar position="static" sx={{ background:colors.backgroundMenu}}>
-            <Container maxWidth="xl">
-                <Toolbar disableGutters>
-                    <StorageIcon sx={{fontSize:'1.3rem', display: { xs: 'none', md: 'flex' }, mr: 1.5 }} />
-                    <Typography
-                    variant="h5"
-                    noWrap
-                    component="a"
-                    onClick={handleLogoClick}
-                    sx={{
-                        display: { xs: 'none', md: 'flex' },
-                        mr: 5,
-                        fontWeight: 700,
-                        fontSize:'1.3rem',
-                        fontFamily: 'monospace',
-                        letterSpacing: '.3rem',
-                        color: 'inherit',
-                        textDecoration: 'none',
-                        '&:hover': {
-                            cursor: 'pointer', 
-                        },
-                    }}
-                    >
-                    DBLEARNING
-                    </Typography>
+  const logout = () => {
+    closeMenus()
+    clearStoredToken()
+    navigate('/', { replace: true })
+  }
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                    <IconButton
-                        size="large"
-                        aria-label="account of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={handleOpenNavMenu}
-                        color="inherit"
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Menu
-                        id="menu-appbar"
-                        anchorEl={anchorElNav}
-                        anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                        }}
-                        open={Boolean(anchorElNav)}
-                        onClose={handleCloseNavMenu}
-                        sx={{
-                        display: { xs: 'block', md: 'none' },
-                        }}
-                    >
-                        <MenuItem key='Consultar IA' onClick={() => {handleCloseNavMenu(); handleButtonConsultarIA();}} >
-                        <SearchIcon color="primary" sx={{mr:'6px', fontSize:'1.4em'}}/>
-                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Consultar IA</Typography>
-                        </MenuItem>
-                        <MenuItem key='Mis consultas' onClick={() => {handleCloseNavMenu(); handleButtonMisConsultas();}}>
-                        <QuestionAnswerIcon color="primary" sx={{mr:'6px', fontSize:'1.4em'}}/>
-                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Mis consultas</Typography>
-                        </MenuItem>
-                        <MenuItem key='Realizar test' onClick={() => {handleCloseNavMenu(); handleButtonRealizarTest();}}>
-                        <PlaylistAddCheckCircleIcon color="primary" sx={{mr:'6px', fontSize:'1.4em'}}/> 
-                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Realizar test</Typography>
-                        </MenuItem>
-                        <MenuItem key='Mis resultados' onClick={() => {handleCloseNavMenu(); handleButtonMisResultados();}}>
-                        <TaskAltIcon color="primary" sx={{mr:'6px', fontSize:'1.4em'}}/>
-                        <Typography textAlign="center" sx={{fontSize:'.9em'}}>Mis resultados</Typography>
-                        </MenuItem>
-                    </Menu>
-                    </Box>
-                    <StorageIcon sx={{ fontSize:'1.3em', display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-                    <Typography
-                    variant="h5"
-                    fontSize="1.3em"
-                    noWrap
-                    component="a"
-                    onClick={handleLogoClick}
-                    sx={{
-                        mr: 2,
-                        display: { xs: 'flex', md: 'none' },
-                        flexGrow: 1,
-                        fontFamily: 'monospace',
-                        fontWeight: 700,
-                        letterSpacing: '.3rem',
-                        color: 'inherit',
-                        textDecoration: 'none',
-                        '&:hover': {
-                            cursor: 'pointer', 
-                        },
-                    }}
-                    >
-                    DBLEARNING
-                    </Typography>
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent:'left'}}>
-                        <Button
-                        variant="filledTonal"
-                        key='Consultar IA'
-                        onClick={handleButtonConsultarIA}
-                        startIcon={<SearchIcon />}
-                        sx={{ height:'4.53em',color: 'white', display: 'inlineBlock', "&:hover": {
-                            borderBottom: "3px solid white", borderRadius: "0"}
-                        }}
-                        >
-                        <Typography sx={{fontWeight:'500', fontSize:'1em'}}>Consultar IA</Typography>
-                        </Button>
+  return (
+    <AppBar position="static" sx={{ background: colors.backgroundMenu, boxShadow: '0 12px 30px rgba(66, 165, 245, 0.22)' }}>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters sx={{ minHeight: { xs: 64, md: 70 }, gap: 1 }}>
+          <Box
+            onClick={() => handleNavigate('/')}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.2,
+              mr: { xs: 1, md: 4 },
+              cursor: 'pointer',
+              minWidth: { xs: 'auto', md: 210 }
+            }}
+          >
+            <StorageIcon sx={{ fontSize: { xs: '1.35rem', md: '1.55rem' } }} />
+            <Typography
+              variant="h5"
+              noWrap
+              sx={{
+                fontWeight: 800,
+                fontSize: { xs: '1.05rem', md: '1.25rem' },
+                fontFamily: 'monospace',
+                letterSpacing: { xs: '.14rem', md: '.26rem' },
+                color: 'inherit'
+              }}
+            >
+              DBLEARNING
+            </Typography>
+          </Box>
 
-                        <Button
-                        variant="filledTonal"
-                        key='Mis consultas'
-                        onClick={handleButtonMisConsultas}
-                        startIcon={<QuestionAnswerIcon />}
-                        sx={{ color: 'white', display: 'inlineBlock', "&:hover": {
-                            borderBottom: "3px solid white", borderRadius: "0"}
-                        }}
-                        >
-                        <Typography sx={{fontWeight:'500', fontSize:'1em'}}>Consultas realizadas</Typography>
-                        </Button>
-                        
-                        <Button
-                        variant="filledTonal"
-                        key='Realizar test'
-                        onClick={handleButtonRealizarTest}
-                        startIcon={<PlaylistAddCheckCircleIcon />}
-                        sx={{ color: 'white', display: 'inlineBlock', "&:hover": {
-                            borderBottom: "3px solid white", borderRadius: "0"}
-                        }}
-                        >
-                        <Typography sx={{fontWeight:'500', fontSize:'1em'}}>Realizar test</Typography>
-                        </Button>
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+            <IconButton
+              size="large"
+              aria-label="Abrir navegación principal"
+              aria-controls="main-navigation-menu"
+              aria-haspopup="true"
+              onClick={(event) => setAnchorElNav(event.currentTarget)}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <DropdownMenu
+              id="main-navigation-menu"
+              anchorEl={anchorElNav}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+              keepMounted
+              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+              open={Boolean(anchorElNav)}
+              onClose={closeMenus}
+              sx={{ display: { xs: 'block', md: 'none' } }}
+            >
+              {navigationItems.map(({ label, path, icon: Icon }) => (
+                <MenuItem key={path} selected={location.pathname === path} onClick={() => handleNavigate(path)}>
+                  <Icon color="primary" sx={{ mr: 1, fontSize: '1.35rem' }} />
+                  <Typography textAlign="center" sx={{ fontSize: '.95rem' }}>{label}</Typography>
+                </MenuItem>
+              ))}
+            </DropdownMenu>
+          </Box>
 
-                        <Button
-                        variant="filledTonal"
-                        key='Mis resultados'
-                        onClick={handleButtonMisResultados}
-                        startIcon={<TaskAltIcon />}
-                        sx={{ color: 'white', display: 'inlineBlock',mr:'12px', "&:hover": {
-                            borderBottom: "3px solid white", borderRadius: "0"}
-                        }}
-                        >
-                        <Typography sx={{fontWeight:'500', fontSize:'1em'}}>Mis resultados</Typography>
-                        </Button>
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, alignItems: 'stretch' }}>
+            {navigationItems.map(({ desktopLabel, path, icon: Icon }) => {
+              const isActive = location.pathname === path
 
-                    </Box>
+              return (
+                <Button
+                  key={path}
+                  onClick={() => handleNavigate(path)}
+                  startIcon={<Icon />}
+                  sx={{
+                    color: 'white',
+                    px: 1.8,
+                    borderRadius: 0,
+                    borderBottom: isActive ? '3px solid white' : '3px solid transparent',
+                    textTransform: 'none',
+                    '&:hover': {
+                      bgcolor: 'rgba(255, 255, 255, 0.12)',
+                      borderBottom: '3px solid white'
+                    }
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 600, fontSize: '.95rem' }}>{desktopLabel}</Typography>
+                </Button>
+              )
+            })}
+          </Box>
 
-                    <Box sx={{ flexGrow: 0}}>
-                    <Tooltip title="Abrir ajustes">
-                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0.5, borderRadius:'10px',":hover": {background:'none'}}}>
-                        <Typography  sx={{fontSize:'.6em',color:'white'}}>{nameUser}</Typography>
-                        <PersonIcon  color="primary" sx={{fontSize:'.8em', color: 'white', ml:'7px', border:'1.7px solid white',padding:'2px', borderRadius:'45px'}}/>
-                        </IconButton>
-                    </Tooltip>
-                    <Menu
-                        sx={{ mt: '45px' }}
-                        id="menu-appbar"
-                        anchorEl={anchorElUser}
-                        anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                        }}
-                        open={Boolean(anchorElUser)}
-                        onClose={handleCloseUserMenu}
-                    >
-                        <MenuItem key={'Mi perfil'} onClick={() => { handleCloseUserMenu(); handleMiPerfil(); }}>
-                            <ManageAccountsOutlinedIcon color="primary" sx={{mr:'7px', fontSize:'1.4em'}}/>
-                            <Typography textAlign="center" sx={{fontSize:'.9em'}}>Mi perfil</Typography>
-                        </MenuItem>
-                        {rol === 'Admin' && (
-                            <MenuItem key={'Gestión de usuarios'} onClick={() => { handleCloseUserMenu(); handleGestionUsuarios() }}>
-                                <GroupIcon color="primary" sx={{mr:'7px', fontSize:'1.4em'}}/>
-                                <Typography textAlign="center" sx={{fontSize:'.9em'}}>Gestión de usuarios</Typography>
-                            </MenuItem>
-                        )}
-                        <MenuItem key={'Cerrar sesión'} onClick={() => { logout(); handleCloseUserMenu(); }}>
-                            <LogoutIcon sx={{color:'IndianRed', mr:'7px', fontSize:'1.4em'}}/>
-                            <Typography textAlign="center" sx={{fontSize:'.9em'}}>Cerrar sesión</Typography>
-                        </MenuItem>  
-                    </Menu>
-                    </Box>
-                </Toolbar>
-            </Container>
-        </AppBar>
-    );
+          <Box sx={{ flexGrow: 0 }}>
+            <Tooltip title="Abrir ajustes">
+              <IconButton
+                onClick={(event) => setAnchorElUser(event.currentTarget)}
+                sx={{
+                  p: 0.7,
+                  borderRadius: 3,
+                  color: 'white',
+                  bgcolor: 'rgba(255, 255, 255, 0.12)',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' }
+                }}
+              >
+                <Typography sx={{ display: { xs: 'none', sm: 'block' }, mr: 1, fontSize: '.85rem', color: 'white', fontWeight: 600 }}>
+                  {userName}
+                </Typography>
+                <Avatar sx={{ width: 30, height: 30, bgcolor: 'white', color: colors.blue, fontWeight: 800, fontSize: '.9rem' }}>
+                  {userInitial || <PersonIcon fontSize="small" />}
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+            <DropdownMenu
+              sx={{ mt: 1 }}
+              id="user-settings-menu"
+              anchorEl={anchorElUser}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              keepMounted
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              open={Boolean(anchorElUser)}
+              onClose={closeMenus}
+            >
+              <MenuItem onClick={() => handleNavigate('/myprofile')}>
+                <ManageAccountsOutlinedIcon color="primary" sx={{ mr: 1, fontSize: '1.35rem' }} />
+                <Typography textAlign="center" sx={{ fontSize: '.95rem' }}>Mi perfil</Typography>
+              </MenuItem>
+              {canManageUsers && (
+                <MenuItem onClick={() => handleNavigate('/usersmanagement')}>
+                  <GroupIcon color="primary" sx={{ mr: 1, fontSize: '1.35rem' }} />
+                  <Typography textAlign="center" sx={{ fontSize: '.95rem' }}>Gestión de usuarios</Typography>
+                </MenuItem>
+              )}
+              <Divider />
+              <MenuItem onClick={logout}>
+                <LogoutIcon sx={{ color: 'IndianRed', mr: 1, fontSize: '1.35rem' }} />
+                <Typography textAlign="center" sx={{ fontSize: '.95rem' }}>Cerrar sesión</Typography>
+              </MenuItem>
+            </DropdownMenu>
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
+  )
 }
 
-export default MenuDB;
+export default MenuDB

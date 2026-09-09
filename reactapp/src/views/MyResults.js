@@ -1,95 +1,84 @@
-import React, { useEffect, useState } from "react";
-import jwt_decode from "jwt-decode";
-import MenuDB from "../components/Menu";
-import '../styles/MyResults.css';
-import { Box, Button, Divider, LinearProgress, Typography } from "@mui/material";
-import colors from "../config/config";
-import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import MarksTable from "../components/MarksTable";
+import { Alert, Box, LinearProgress, Typography } from '@mui/material'
+import ExitToAppIcon from '@mui/icons-material/ExitToApp'
+import TaskAltIcon from '@mui/icons-material/TaskAlt'
+import { useNavigate } from 'react-router-dom'
+import MarksTable from '../components/MarksTable'
+import { EmptyState, PageHeader, PageLayout, SurfaceCard } from '../components/layout/PageLayout'
+import { useUserResults } from '../hooks/useUserResults'
+import colors from '../config/config'
 
-function MyResults() {
-    const [testResultados, setTestResultados] = useState([]);
-    const [mediaResultados, setMediaResultados] = useState(null);
-    const [aciertosTotales, setAciertosTotales] = useState({});
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        axios.get(`http://localhost:3060/userMarks?usuario_id=${jwt_decode(localStorage.getItem('token')).id}`,{
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          }
-        })
-          .then(response => {
-            setTestResultados(response.data);
-            const calificaciones = response.data.map(test => test.calificacion);
-            const media = parseFloat(((calificaciones.reduce((acc, calificacion) => acc + calificacion, 0) / calificaciones.length)*10).toFixed(1));
-            const aciertosCalculados = (calificaciones.reduce((acc, calificacion) => acc + Math.round(calificacion*11/10), 0));
-            setAciertosTotales({aciertos:aciertosCalculados,total:response.data.length*11});
-            setMediaResultados(media);
-          })
-          .catch(error => {
-            alert('Se ha producido un error al obtener sus resultados, intenteló en otro momento. ',error);
-          });
-    }, []); 
-
-    
-    const handleButtonTestClick = () => {
-        navigate('/testIA');
-    };
-    return (
-        <Box sx={{minHeight:'100vh', margin: 0, overflowY:'auto'}}>
-            <MenuDB />
-            <Box sx={{height:'100%',display:'flex',flexDirection:'column', pt:'30px', pb:'40px', pr:'60px', pl:'60px', gap:'15px', overflow:'hidden'}}>
-                <Typography variant="h3" fontSize="40px" fontWeight="light" color={colors.blue} sx={{display:'flex',flexDirection:'row', alignItems:'end', gap:'20px',mb:'25px'}}>
-                    Mis resultados 
-                    <TaskAltIcon sx={{fontSize:'40px'}}/>
-                </Typography>
-                {testResultados.length === 0 ? (
-                    <Typography variant="h6" ml="20px" fontWeight="regular" color={colors.blueSecondary} sx={{display:'flex', flexDirection:'column', gap:'20px'}} >
-                        Todavía no has realizado ningún test...
-                    <Button endIcon={<ExitToAppIcon/>} variant="contained" onClick={handleButtonTestClick} sx={{ boxShadow:0,width:'370px',background:colors.blueSecondary, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
-                        <Typography>
-                        Haz click y pon a prueba tus conocimientos
-                        </Typography>
-                    </Button>
-                    </Typography>
-                ) : (
-                    <Box>
-                        <Box sx={{ mb: '20px', p:'25px', gap: '20px', display:'flex', flexDirection:{xs:'column', md:'row'}, borderRadius:'10px', border:'1px solid rgba(0, 0, 0, 0.17)'}}>
-                            <Box sx={{ gap:'5px',width:{xs:'100%', md:'50%'}, display:'flex', flexDirection:'column', alignItems:'center'}}>
-                                <Typography color="#607d8b" fontWeight="Regular" sx={{mb:'5px'}}>
-                                    Su media de resultados es:
-                                </Typography>
-                                <LinearProgress variant="determinate" sx={{width:'100%'}} value={mediaResultados}></LinearProgress>
-                                <Typography color="#607d8b" fontWeight="500" fontSize="16px">
-                                    {mediaResultados}%
-                                </Typography>
-                            </Box>
-                            <Divider sx={{display:{md:'none', lg:'none'} }}/>
-                            <Box sx={{ gap:'5px',width:{xs:'100%', md:'50%'}, display:'flex', flexDirection:'column', alignItems:'center'}}>
-                                <Typography color="#607d8b" fontWeight="Regular" sx={{mb:'5px'}}>
-                                    Aciertos / Total de respuestas:
-                                </Typography>
-                                <Typography color="#607d8b" fontWeight="500" fontSize="16px" display="flex" flexDirection="row" gap="4px">
-                                    <Typography fontWeight="500" fontSize="16px" style={{ color:colors.blue }}>
-                                        {aciertosTotales.aciertos}
-                                    </Typography>/ {aciertosTotales.total}
-                                </Typography>
-                            </Box>
-                        </Box>
-                        <Divider></Divider>
-                        {/*Tabla de MUI */}
-                        <MarksTable rows={testResultados}/>
-                    </Box>
-                )
-                }
-            </Box>
-        </Box>
-    );
+function MetricCard({ label, value, helper }) {
+  return (
+    <SurfaceCard sx={{ p: { xs: 2.5, md: 3 } }}>
+      <Typography sx={{ color: colors.text, fontSize: '.9rem', fontWeight: 700, mb: 1 }}>
+        {label}
+      </Typography>
+      <Typography sx={{ color: colors.blue, fontSize: { xs: '2rem', md: '2.4rem' }, fontWeight: 800, lineHeight: 1 }}>
+        {value}
+      </Typography>
+      {helper && (
+        <Typography sx={{ color: colors.text, mt: 1, fontSize: '.88rem' }}>
+          {helper}
+        </Typography>
+      )}
+    </SurfaceCard>
+  )
 }
 
-export default MyResults;
+function MyResults() {
+  const navigate = useNavigate()
+  const { results, summary, loading, error } = useUserResults()
+
+  return (
+    <PageLayout maxWidth="1180px" spacing={3}>
+      <PageHeader
+        eyebrow="Seguimiento de progreso"
+        title="Mis resultados"
+        icon={TaskAltIcon}
+        description="Consulta el histórico de test realizados, tu nota media y el total de aciertos acumulados."
+      />
+
+      {error && <Alert severity="error">{error}</Alert>}
+
+      {loading && results.length === 0 && (
+        <SurfaceCard sx={{ p: { xs: 3, md: 4 } }}>
+          <LinearProgress sx={{ mb: 2 }} />
+          <Typography sx={{ color: colors.text }}>Cargando tus resultados...</Typography>
+        </SurfaceCard>
+      )}
+
+      {!loading && results.length === 0 ? (
+        <EmptyState
+          title="Todavía no has realizado ningún test"
+          description="Cuando completes tu primer test, podrás ver aquí tus calificaciones, dificultad, temas practicados y evolución general."
+          actionLabel="Haz click y realiza tu primer test"
+          actionIcon={<ExitToAppIcon />}
+          onAction={() => navigate('/testIA')}
+        />
+      ) : (
+        <>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+              gap: 2
+            }}
+          >
+            <MetricCard label="Nota media" value={`${summary.average}%`} helper="Media de todos los test completados" />
+            <MetricCard label="Aciertos" value={`${summary.hits}/${summary.total}`} helper="Total de respuestas acertadas" />
+            <MetricCard label="Tests realizados" value={results.length} helper="Pruebas guardadas en tu historial" />
+          </Box>
+
+          <SurfaceCard sx={{ p: { xs: 1.5, md: 2 }, overflowX: 'auto' }}>
+            <Typography variant="h6" sx={{ color: colors.blue, fontWeight: 700, px: { xs: 1, md: 2 }, pt: 1, pb: 2 }}>
+              Historial de pruebas
+            </Typography>
+            <MarksTable rows={results} />
+          </SurfaceCard>
+        </>
+      )}
+    </PageLayout>
+  )
+}
+
+export default MyResults

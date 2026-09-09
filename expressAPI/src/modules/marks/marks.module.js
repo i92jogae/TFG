@@ -4,6 +4,14 @@ const { asyncHandler } = require('../../shared/asyncHandler')
 const { validateRequiredFields } = require('../../utils/validation')
 const { parseUserId } = require('../users/users.module')
 
+function normalizeTextValue(value) {
+  if (Array.isArray(value)) {
+    return value.join(', ').trim()
+  }
+
+  return String(value).trim()
+}
+
 function createMarksRepository(db) {
   return {
     async saveMark({ usuarioId, calificacion, dificultad, temas }) {
@@ -42,8 +50,8 @@ function createMarksService({ marksRepository }) {
       await marksRepository.saveMark({
         usuarioId: parseUserId(payload.usuario_id),
         calificacion,
-        dificultad: payload.dificultad.trim(),
-        temas: payload.temas.trim()
+        dificultad: normalizeTextValue(payload.dificultad),
+        temas: normalizeTextValue(payload.temas)
       })
     },
 
@@ -72,5 +80,6 @@ function createMarksRouter({ marksService, authenticateToken }) {
 module.exports = {
   createMarksRepository,
   createMarksRouter,
-  createMarksService
+  createMarksService,
+  normalizeTextValue
 }

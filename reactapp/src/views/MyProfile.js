@@ -1,281 +1,280 @@
-import React, { useState,useEffect } from "react";
-import axios from "axios";
-import jwt_decode from "jwt-decode";
-import '../styles/MyProfile.css';
-import MenuDB from "../components/Menu";
-import colors from "../config/config";
-import { Box, Divider, IconButton, List, ListItem, Modal, Typography, Fade, Backdrop, TextField, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide, FormControl, InputLabel, Input, InputAdornment } from "@mui/material";
-import EditIcon from '@mui/icons-material/Edit';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import ContactPageOutlinedIcon from '@mui/icons-material/ContactPageOutlined';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #42a5f5',
-    boxShadow: 24,
-    p: 4,
-  };
+import React, { useState } from 'react'
+import {
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Input,
+  InputAdornment,
+  InputLabel,
+  LinearProgress,
+  FormControl,
+  Slide,
+  TextField,
+  Typography
+} from '@mui/material'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+import LockResetIcon from '@mui/icons-material/LockReset'
+import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined'
+import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import { PageHeader, PageLayout, SurfaceCard } from '../components/layout/PageLayout'
+import { useUserProfile } from '../hooks/useUserProfile'
+import colors from '../config/config'
 
 const Transition = React.forwardRef(function Transition(props, ref) {
-return <Slide direction="up" ref={ref} {...props} />;
-});
+  return <Slide direction="up" ref={ref} {...props} />
+})
 
-function MyProfile() {
-    const [error, setError] = useState("");
-    const [edited, setEdited] = useState(false);
-    const [modalNombreAbierto, setModalNombreAbierto] = useState(false);
-    const [modalPassAbierto, setModalPassAbierto] = useState(false);
-    const [datosUsuario, setDatosUsuario] = useState({});
-    const [mostrarContraseña, setMostrarContraseña] = useState(false);
-
-    useEffect(() => {
-        axios.get(`http://localhost:3060/userData?usuario_id=${jwt_decode(localStorage.getItem('token')).id}`,{
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          }
-        })
-          .then(response => {
-            setDatosUsuario(response.data);
-          })
-          .catch(error => {
-            alert('Se ha producido un error al recuperar sus datos. ',error);
-          });
-    }, []); 
-
-    const handleCloseDialogAlert = () => {
-        setEdited(false);
-        window.location.reload();
-    }
-
-    const handleOpenModalNombre = () => setModalNombreAbierto(true);
-    const handleCloseModalNombre = () => {
-        setModalNombreAbierto(false);
-        setError("");
-    }
-    const handleOpenModalPass = () => setModalPassAbierto(true);
-    const handleCloseModalPass = () => {
-        setModalPassAbierto(false);
-        setError("");
-    }
-
-    const handleClickMostrarContraseña = () => {
-        setMostrarContraseña((show) => !show);
-    };
-
-    const handleSubmitNombre = () => {
-        const nombre = document.getElementById("username").value; 
-        if (nombre===""){
-            setError("Debe introducir un nombre.");
-        } else {
-            //Solicitud para editar el nombre de usuario
-            axios
-            .put(`http://localhost:3060/editUsername`,
-                { 
-                    usuario_id: jwt_decode(localStorage.getItem("token")).id, nuevo_nombre: nombre 
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    },
-                }
-            )
-            .then((response) => {
-                handleCloseModalNombre();
-                setEdited(true);
-            })
-            .catch((error) => {
-                if (error.response.status === 400) {
-                    setError("El nuevo nombre no puede ser igual que el anterior");
-                } else {
-                    alert("Error al modificar su nombre de usuario, inténtelo de nuevo");
-                }
-            });
-        }
-
-    };
-
-    const handleSubmitPass = () => {
-        const pass = document.getElementById("password").value; 
-        if (pass===""){
-            setError("Debe introducir una contraseña.");
-        } else if (pass.length<8 || !(/\d/.test(pass))) {
-            setError("La contraseña debe tener al menos 8 caracteres y un número.");
-        } else {
-            //Solicitud para editar la contraseña
-            axios
-            .put(`http://localhost:3060/editPassword`,
-                { 
-                    usuario_id: jwt_decode(localStorage.getItem("token")).id, nueva_contrasena: pass 
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    },
-                }
-            )
-            .then((response) => {
-                handleCloseModalPass();
-                setEdited(true);
-            })
-            .catch((error) => {
-                if (error.response.status === 400) {
-                    setError("La nueva contraseña no puede ser igual que la anterior");
-                } else {
-                    alert("Error al modificar su contraseña, inténtelo de nuevo");
-                }
-            });
-        }
-    };
-
-    return (
-        <Box sx={{minHeight:'100vh', margin: 0, overflowY:'auto'}}>
-            <Dialog
-                open={edited}
-                TransitionComponent={Transition}
-                keepMounted
-                onClose={handleCloseDialogAlert}
-                aria-describedby="alert-dialog-edited"
-                fullWidth
-                maxWidth="sm"
-                >
-                <DialogTitle color={colors.blue} >{"Se ha modificado con éxito"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description" fontWeight="Light" color={colors.blue} fontSize="large">
-                        La modificación se ha realizado correctamente
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="contained" onClick={handleCloseDialogAlert} sx={{background:colors.blue,opacity:'80%', textTransform:'none', "&:hover": {background:colors.blue, boxShadow:6}}}>
-                    <Typography>
-                        Aceptar
-                    </Typography>
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <MenuDB />
-            <Box sx={{ display:'flex', justifyContent:'center',height:'100%', mt:'50px', mb:'50px'}}>
-                <Box sx={{ display:'flex',flexDirection:'column', gap:'17px', width:'50%', backgroundColor:'white',pt:'30px', pl:'40px', pr:'40px', pb:'10px', borderRadius:'10px', border:'1px solid rgba(0, 0, 0, 0.17)'}}>
-                    <Modal
-                        open={modalNombreAbierto}
-                        closeAfterTransition
-                        slots={{backdrop:Backdrop}}
-                        slotProps={{
-                            backdrop: {
-                                timeout: 500,
-                            }
-                        }}
-                    >
-                        <Fade in={modalNombreAbierto}>
-                            <Box sx={style}>
-                                <Typography color={colors.blue} variant="h5" >
-                                    Editar nombre de usuario
-                                </Typography>
-                                <TextField sx={{mt:'20px', color:colors.blue}} required fullWidth id="username" label="Nuevo nombre de usuario" variant="standard" />
-                                {error && (
-                                    <Typography sx={{ color: '#e57373', mt:'10px', display:'flex', alignItems:'center'}}>
-                                        <ErrorOutlineIcon sx={{mr:'5px'}}/>{error}
-                                    </Typography>
-                                )}
-                                <Button variant="contained" onClick={handleSubmitNombre} sx={{width:'30%', mt:'40px', mr:'10px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:9}}}>
-                                    <Typography sx={{fontWeight:'500'}}>Confirmar</Typography>
-                                </Button>
-                                <Button variant="contained" onClick={handleCloseModalNombre} sx={{ width:'30%', mt:'40px', background:colors.red, textTransform:'none', "&:hover": {background:colors.red, boxShadow:9}}}>
-                                    <Typography sx={{fontWeight:'500'}}>Cancelar</Typography>
-                                </Button>
-                            </Box>
-                        </Fade>
-                    </Modal>
-                    <Modal
-                        open={modalPassAbierto}
-                        closeAfterTransition
-                        slots={{backdrop:Backdrop}}
-                        slotProps={{
-                            backdrop: {
-                                timeout: 500,
-                            }
-                        }}
-                    >
-                        <Fade in={modalPassAbierto}>
-                            <Box sx={style}>
-                                <Typography mb="20px" color={colors.blue} variant="h5" >
-                                    Editar contraseña
-                                </Typography>
-                                <FormControl fullWidth required variant="standard">
-                                    <InputLabel>Contraseña</InputLabel>
-                                    <Input
-                                        id="password"
-                                        type={mostrarContraseña ? 'text' : 'password'}
-                                        endAdornment={
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    onClick={handleClickMostrarContraseña}
-                                                >
-                                                    {mostrarContraseña ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
-                                    />
-                                </FormControl>
-                                {error && (
-                                    <Typography sx={{ color: '#e57373',  mt:'10px', display:'flex', alignItems:'center'}}>
-                                        <ErrorOutlineIcon sx={{mr:'5px'}}/>{error}
-                                    </Typography>
-                                )}
-                                <Button variant="contained" onClick={handleSubmitPass} sx={{ width:'30%', mt:'40px', mr:'10px', background:colors.blue, textTransform:'none', "&:hover": {background:colors.blue, boxShadow:9}}}>
-                                    <Typography sx={{fontWeight:'500'}}>Confirmar</Typography>
-                                </Button>
-                                <Button variant="contained" onClick={handleCloseModalPass} sx={{ width:'30%', mt:'40px', background:colors.red, textTransform:'none', "&:hover": {background:colors.red, boxShadow:9}}}>
-                                    <Typography sx={{fontWeight:'500'}}>Cancelar</Typography>
-                                </Button>
-                            </Box>
-                        </Fade>
-                    </Modal>
-                    <Typography variant="h3" fontSize="39px" fontWeight="Light" color={colors.blue} sx={{display:'flex',flexDirection:'row', alignItems:'end', gap:'10px',}}>
-                        Información personal
-                        <ContactPageOutlinedIcon sx={{fontSize:'44px'}}/>
-                    </Typography>
-                    <Typography ml="10px" fontWeight="Regular" color="#607d8b" fontSize="15.5px">
-                        Tu información personal será totalmente privada y siempre estará protegida. Además podrás gestionarla cuando lo desees.
-                    </Typography>
-                    <List sx={{width:'100%' }}>
-                        <ListItem sx={{mb:'1%'}} secondaryAction=
-                            {<IconButton edge="end" onClick={handleOpenModalNombre}>
-                                <EditIcon/>
-                            </IconButton>}
-                        >
-                            <Typography width="221px" fontSize="15.5px" color={colors.blue}>Nombre de usuario</Typography>
-                            <Typography fontWeight="medium" fontSize="15.5px" color="#607d8b">{datosUsuario[0]?.nombre}</Typography>
-                        </ListItem>
-                        <Divider />
-                        <ListItem sx={{mt:'1%', mb:'10px'}} >
-                            <Typography width="221px" fontSize="15.5px" color={colors.blue}>Email</Typography>
-                            <Typography fontWeight="medium" fontSize="15.5px" color="#607d8b">{datosUsuario[0]?.correo}</Typography>
-                        </ListItem>
-                        <Divider />
-                        <ListItem sx={{mt:'1%'}} secondaryAction=
-                            {<IconButton edge="end" onClick={handleOpenModalPass}>
-                                <EditIcon />
-                            </IconButton>}
-                        >
-                            <Typography width="221px" fontSize="15.5px" color={colors.blue}>Contraseña</Typography>
-                            <Typography fontWeight="medium" fontSize="15.5px" color="#607d8b">***********</Typography>
-                        </ListItem>
-                    </List>
-                </Box>
-            </Box>
-        </Box>
-        
-    );
+function ProfileInfoCard({ icon: Icon, label, value }) {
+  return (
+    <SurfaceCard sx={{ p: { xs: 2.5, md: 3 } }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+        <Icon sx={{ color: colors.blue }} />
+        <Typography sx={{ color: colors.text, fontWeight: 700, fontSize: '.9rem' }}>{label}</Typography>
+      </Box>
+      <Typography sx={{ color: '#37474f', fontSize: '1.05rem', fontWeight: 700, wordBreak: 'break-word' }}>
+        {value || 'No disponible'}
+      </Typography>
+    </SurfaceCard>
+  )
 }
 
-export default MyProfile;
+function MyProfile() {
+  const { profile, loading, actionLoading, error, setError, changeUsername, changePassword } = useUserProfile()
+  const [usernameModalOpen, setUsernameModalOpen] = useState(false)
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false)
+  const [newUsername, setNewUsername] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+
+  const userName = profile?.nombre || 'Usuario'
+  const userEmail = profile?.correo || 'Correo no disponible'
+  const userRole = profile?.rol === 'Admin' ? 'Administrador' : 'Estudiante'
+  const userInitial = userName.substring(0, 1).toUpperCase()
+
+  const openUsernameModal = () => {
+    setNewUsername(userName)
+    setFormError('')
+    setError('')
+    setUsernameModalOpen(true)
+  }
+
+  const closeUsernameModal = () => {
+    setUsernameModalOpen(false)
+    setNewUsername('')
+    setFormError('')
+  }
+
+  const openPasswordModal = () => {
+    setNewPassword('')
+    setConfirmPassword('')
+    setShowPassword(false)
+    setFormError('')
+    setError('')
+    setPasswordModalOpen(true)
+  }
+
+  const closePasswordModal = () => {
+    setPasswordModalOpen(false)
+    setNewPassword('')
+    setConfirmPassword('')
+    setFormError('')
+    setShowPassword(false)
+  }
+
+  const handleUsernameChange = async () => {
+    if (!newUsername.trim()) {
+      setFormError('Por favor, introduce un nombre de usuario válido.')
+      return
+    }
+
+    try {
+      await changeUsername(newUsername.trim())
+      closeUsernameModal()
+      setSuccessMessage('Nombre de usuario actualizado correctamente.')
+    } catch {
+      setFormError('')
+    }
+  }
+
+  const handlePasswordChange = async () => {
+    if (!newPassword || !confirmPassword) {
+      setFormError('Por favor, completa los dos campos de contraseña.')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setFormError('Las contraseñas no coinciden.')
+      return
+    }
+
+    if (newPassword.length < 8 || !/\d/.test(newPassword)) {
+      setFormError('La contraseña debe tener al menos 8 caracteres y un número.')
+      return
+    }
+
+    try {
+      await changePassword(newPassword)
+      closePasswordModal()
+      setSuccessMessage('Contraseña actualizada correctamente.')
+    } catch {
+      setFormError('')
+    }
+  }
+
+  return (
+    <PageLayout maxWidth="1060px" spacing={3}>
+      <PageHeader
+        eyebrow="Área personal"
+        title="Mi perfil"
+        icon={ManageAccountsOutlinedIcon}
+        description="Consulta tus datos de cuenta y actualiza tu nombre de usuario o contraseña cuando lo necesites."
+      />
+
+      {loading && <LinearProgress />}
+      {error && <Alert severity="error" onClose={() => setError('')}>{error}</Alert>}
+      {successMessage && <Alert severity="success" onClose={() => setSuccessMessage('')}>{successMessage}</Alert>}
+
+      <SurfaceCard sx={{ p: { xs: 3, md: 4 } }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: 3
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar sx={{ width: 72, height: 72, bgcolor: colors.blue, fontSize: '2rem', fontWeight: 800 }}>
+              {userInitial || <AccountCircleIcon />}
+            </Avatar>
+            <Box>
+              <Typography variant="h5" sx={{ color: colors.blue, fontWeight: 800 }}>
+                {userName}
+              </Typography>
+              <Typography sx={{ color: colors.text, mt: 0.5 }}>{userEmail}</Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1.5, width: { xs: '100%', sm: 'auto' } }}>
+            <Button
+              variant="contained"
+              onClick={openUsernameModal}
+              disabled={actionLoading}
+              sx={{ bgcolor: colors.blue, textTransform: 'none', boxShadow: 0, '&:hover': { bgcolor: colors.blue, boxShadow: 6 } }}
+            >
+              Cambiar usuario
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={openPasswordModal}
+              disabled={actionLoading}
+              startIcon={<LockResetIcon />}
+              sx={{ borderColor: colors.blue, color: colors.blue, textTransform: 'none' }}
+            >
+              Cambiar contraseña
+            </Button>
+          </Box>
+        </Box>
+      </SurfaceCard>
+
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+        <ProfileInfoCard icon={BadgeOutlinedIcon} label="Nombre" value={userName} />
+        <ProfileInfoCard icon={EmailOutlinedIcon} label="Correo" value={userEmail} />
+        <ProfileInfoCard icon={ShieldOutlinedIcon} label="Rol" value={userRole} />
+      </Box>
+
+      <Dialog open={usernameModalOpen} TransitionComponent={Transition} keepMounted onClose={closeUsernameModal} fullWidth maxWidth="sm">
+        <DialogTitle color={colors.blue}>Cambiar nombre de usuario</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            El nuevo nombre se usará en la interfaz y se actualizará también en el token de sesión cuando el servidor devuelva uno nuevo.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            required
+            fullWidth
+            id="username"
+            label="Nuevo nombre de usuario"
+            variant="standard"
+            value={newUsername}
+            onChange={(event) => setNewUsername(event.target.value)}
+          />
+          {formError && (
+            <Typography sx={{ color: '#e57373', mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ErrorOutlineIcon />
+              {formError}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={closeUsernameModal} disabled={actionLoading}>Cancelar</Button>
+          <Button variant="contained" onClick={handleUsernameChange} disabled={actionLoading} sx={{ bgcolor: colors.blue, textTransform: 'none' }}>
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={passwordModalOpen} TransitionComponent={Transition} keepMounted onClose={closePasswordModal} fullWidth maxWidth="sm">
+        <DialogTitle color={colors.blue}>Cambiar contraseña</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Utiliza una contraseña con al menos 8 caracteres y un número para mantener tu cuenta protegida.
+          </DialogContentText>
+          <FormControl fullWidth required variant="standard" sx={{ mb: 2 }}>
+            <InputLabel>Nueva contraseña</InputLabel>
+            <Input
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              type={showPassword ? 'text' : 'password'}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword((currentValue) => !currentValue)}>
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+          <FormControl fullWidth required variant="standard">
+            <InputLabel>Confirmar contraseña</InputLabel>
+            <Input
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              type={showPassword ? 'text' : 'password'}
+            />
+          </FormControl>
+          {formError && (
+            <Typography sx={{ color: '#e57373', mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ErrorOutlineIcon />
+              {formError}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={closePasswordModal} disabled={actionLoading}>Cancelar</Button>
+          <Button variant="contained" onClick={handlePasswordChange} disabled={actionLoading} sx={{ bgcolor: colors.blue, textTransform: 'none' }}>
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </PageLayout>
+  )
+}
+
+export default MyProfile

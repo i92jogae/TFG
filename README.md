@@ -25,8 +25,20 @@ TFG/
 ├── database/
 │   └── dblearning.sql
 ├── expressAPI/
-│   ├── api.js                # Original API entry point
-│   └── src/                  # Refactored API architecture
+│   ├── api.js
+│   ├── package.json
+│   └── src/
+│       ├── app.js
+│       ├── config/
+│       ├── middleware/
+│       ├── modules/
+│       │   ├── ai/
+│       │   ├── auth/
+│       │   ├── conversations/
+│       │   ├── marks/
+│       │   └── users/
+│       ├── shared/
+│       └── utils/
 └── reactapp/
     ├── public/
     └── src/
@@ -39,27 +51,38 @@ TFG/
 
 ## Frontend
 
-The frontend is built with React and React Router. The application is organized around pages/views and reusable infrastructure:
-
-- `views/`: route-level screens.
-- `components/`: shared UI components.
-- `routes/`: routing helpers such as protected routes.
-- `utils/`: reusable logic, for example token handling.
-- `styles/`: global responsive styles.
+The frontend is built with React and React Router. The application is organized around route-level screens, shared components and reusable infrastructure.
 
 ### Frontend improvements
 
-The project has been modernized progressively to improve maintainability and public presentation:
-
 - Centralized authentication helpers.
 - Protected route component to avoid repeating guard logic in `App.js`.
+- Guest route component for login/register flows.
 - Responsive global layout rules.
 - Safer token decoding and role verification.
-- Testing utilities for auth logic.
+- Testing utilities for auth logic and app smoke rendering.
 
 ## Backend
 
-The backend is an Express API connected to MySQL. It handles authentication, user data, AI consultations, test generation, saved conversations, saved marks and admin operations.
+The backend has been refactored from a single large Express file into a modular architecture based on application factory, configuration, middleware and feature modules.
+
+### Backend architecture
+
+- `api.js`: small entry point that creates the app and starts the server.
+- `src/app.js`: application factory where dependencies are wired.
+- `src/config/`: environment, MySQL pool and OpenAI client configuration.
+- `src/middleware/`: authentication, role guards and centralized error handling.
+- `src/shared/`: reusable helpers such as `AppError` and async controller wrapper.
+- `src/utils/`: validation helpers.
+- `src/modules/`: domain-oriented backend modules.
+
+### API modules
+
+- `auth`: registration and login.
+- `users`: profile data, profile updates and admin user management.
+- `ai`: AI assistant and quiz generation.
+- `conversations`: saved AI consultations and user query history.
+- `marks`: saved test results and user score history.
 
 ### API responsibilities
 
@@ -68,37 +91,23 @@ The backend is an Express API connected to MySQL. It handles authentication, use
 - AI tests: `/generateTest`, `/saveMark`, `/userMarks`.
 - User profile: `/userData`, `/editUsername`, `/editPassword`.
 - Admin: `/users`, `/deleteUser`, `/editUser`.
-
-### Backend modernization goals
-
-The original API was implemented in a single file. A cleaner architecture separates responsibilities into configuration, middleware, utilities, services and routes. This makes the code easier to test, maintain and extend.
-
-Recommended target structure:
-
-```txt
-expressAPI/src/
-├── app.js
-├── server.js
-├── config/
-├── middleware/
-├── routes/
-├── services/
-└── utils/
-```
+- Health check: `/health`.
 
 ## Testing
 
-The project includes a first testing layer focused on critical pure logic:
+The project includes a first testing layer focused on critical pure logic and backend domain services.
 
-- Authentication/token helper tests in the frontend.
-- API validation/helper tests in the backend.
+### Frontend tests
 
-Recommended next testing steps:
+- Authentication/token helper tests.
+- Application smoke test with mocked external dependencies.
 
-- Component tests for login/register forms.
-- Integration tests for protected routes.
-- API route tests with mocked database queries.
-- E2E tests for the main user flows.
+### Backend tests
+
+- Validation helpers.
+- User module business rules.
+- AI service behavior with mocked OpenAI client.
+- Marks module payload normalization and validation.
 
 ## Environment variables
 
@@ -152,11 +161,11 @@ npm test
 
 ## Roadmap
 
-- Complete API modularization by moving every endpoint from `api.js` to route/controller/service layers.
-- Add full integration tests with mocked MySQL and OpenAI clients.
-- Improve all views with a consistent design system.
+- Continue improving the UI with a consistent design system.
 - Replace duplicated form logic with reusable hooks.
 - Add loading, empty and error states consistently.
+- Add API route integration tests with mocked MySQL and OpenAI clients.
+- Add E2E tests for the main user flows.
 - Improve accessibility and responsive behavior across all screens.
 - Add deployment documentation for frontend and backend.
 

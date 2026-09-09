@@ -1,11 +1,11 @@
 {
   "name": "expressapi",
   "version": "1.0.0",
-  "description": "API express",
+  "description": "DB Learning Express API",
   "main": "api.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node api.js"
+    "start": "node api.js",
+    "test": "node --test \"src/**/*.test.js\""
   },
   "author": "Enrique Jordano García",
   "license": "ISC",

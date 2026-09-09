@@ -3,6 +3,14 @@ import { getUserData, updatePassword, updateUsername } from '../services/dbLearn
 import { getApiErrorMessage } from '../services/apiClient'
 import { getCurrentUser, setStoredToken } from '../utils/auth'
 
+function normalizeProfileResponse(userData) {
+  if (Array.isArray(userData)) {
+    return userData[0] || null
+  }
+
+  return userData || null
+}
+
 export function useUserProfile() {
   const currentUser = getCurrentUser()
   const [profile, setProfile] = useState(null)
@@ -18,7 +26,8 @@ export function useUserProfile() {
 
     try {
       const userData = await getUserData(currentUser.id)
-      setProfile(userData)
+      const normalizedProfile = normalizeProfileResponse(userData)
+      setProfile(normalizedProfile)
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, 'Se ha producido un error al recuperar los datos del usuario.'))
     } finally {
@@ -66,7 +75,7 @@ export function useUserProfile() {
   }, [loadProfile])
 
   return {
-    profile: profile || currentUser,
+    profile: profile ? { ...currentUser, ...profile } : currentUser,
     loading,
     actionLoading,
     error,

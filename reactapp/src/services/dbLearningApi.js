@@ -92,8 +92,8 @@ export async function deleteUser(usuarioId) {
   return data
 }
 
-export async function generateTest({ difficulty, topics }) {
-  const { data } = await apiClient.post('/generateTest', { difficulty, topics })
+export async function generateTest(query) {
+  const { data } = await apiClient.post('/generateTest', { query })
   return data
 }
 

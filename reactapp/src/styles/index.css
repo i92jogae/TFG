@@ -92,6 +92,29 @@ h3,
   letter-spacing: -0.03em;
 }
 
+::selection {
+  background: rgba(2, 132, 199, 0.2);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.65);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.45);
+  border-radius: 999px;
+  border: 2px solid rgba(226, 232, 240, 0.65);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(2, 132, 199, 0.55);
+}
+
 .app-shell {
   min-height: 100vh;
   width: 100%;
@@ -161,11 +184,33 @@ h3,
   width: min(100% - 24px, 560px) !important;
   max-height: calc(100dvh - 32px) !important;
   margin: 16px !important;
+  border-radius: 24px !important;
 }
 
 .MuiCard-root,
 .MuiPaper-root {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+}
+
+.MuiOutlinedInput-root,
+.MuiInputBase-root {
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.MuiOutlinedInput-root.Mui-focused {
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.1);
+}
+
+.MuiButton-root,
+.MuiIconButton-root,
+.MuiChip-root,
+.MuiAccordion-root {
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.MuiButton-root:hover,
+.MuiIconButton-root:hover {
+  transform: translateY(-1px);
 }
 
 @media (max-width: 900px) {
@@ -206,6 +251,10 @@ h3,
   .MuiTable-root {
     min-width: 640px;
   }
+
+  .MuiDialog-paper {
+    border-radius: 20px !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -216,5 +265,10 @@ h3,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .MuiButton-root:hover,
+  .MuiIconButton-root:hover {
+    transform: none;
   }
 }

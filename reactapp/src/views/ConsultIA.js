@@ -1,10 +1,118 @@
-import { Alert, Avatar, Box, Divider, IconButton, LinearProgress, TextField, Tooltip, Typography } from '@mui/material'
+import { Alert, Avatar, Box, Button, Chip, Divider, IconButton, LinearProgress, Stack, TextField, Tooltip, Typography } from '@mui/material'
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import DvrIcon from '@mui/icons-material/Dvr'
 import SendIcon from '@mui/icons-material/Send'
+import StorageIcon from '@mui/icons-material/Storage'
 import { PageHeader, PageLayout, SurfaceCard } from '../components/layout/PageLayout'
 import { useAiConversation } from '../hooks/useAiConversation'
-import colors from '../config/config'
+import colors, { gradients } from '../config/config'
 import dblearningchat from '../images/dblearningchat.png'
+
+const suggestedPrompts = [
+  'Explícame la diferencia entre una clave primaria y una clave foránea con un ejemplo sencillo.',
+  '¿Cómo se aplica la tercera forma normal en una base de datos relacional?',
+  'Dame un ejemplo de consulta SQL con JOIN entre dos tablas.',
+  'Resume las diferencias entre modelo entidad-relación y modelo relacional.'
+]
+
+function AssistantEmptyState({ onSelectPrompt }) {
+  return (
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) 340px' }, gap: 3, alignItems: 'stretch' }}>
+      <Box sx={{ maxWidth: 720, minWidth: 0 }}>
+        <Chip
+          icon={<AutoAwesomeIcon />}
+          label="Tutor IA especializado en bases de datos"
+          sx={{ bgcolor: colors.surfaceContainer, color: colors.blueDark, border: `1px solid ${colors.border}`, fontWeight: 850 }}
+        />
+        <Typography variant="h4" sx={{ mt: 2.5, color: colors.text, fontWeight: 900, lineHeight: 1.1, fontSize: { xs: '2rem', md: '2.55rem' } }}>
+          Empieza escribiendo tu primera consulta
+        </Typography>
+        <Typography sx={{ color: colors.textMuted, mt: 1.5, lineHeight: 1.8, fontSize: '1.02rem' }}>
+          Puedes preguntar por SQL, normalización, relaciones, claves, modelos entidad-relación o cualquier concepto del temario. La respuesta quedará integrada en tu historial para repasarla más adelante.
+        </Typography>
+
+        <Stack spacing={1.25} sx={{ mt: 3 }}>
+          {suggestedPrompts.map((prompt) => (
+            <Button
+              key={prompt}
+              type="button"
+              onClick={() => onSelectPrompt(prompt)}
+              variant="outlined"
+              sx={{
+                justifyContent: 'flex-start',
+                textAlign: 'left',
+                borderRadius: 3,
+                px: 2,
+                py: 1.25,
+                color: colors.text,
+                borderColor: colors.border,
+                bgcolor: 'rgba(255,255,255,.72)',
+                textTransform: 'none',
+                lineHeight: 1.5,
+                '&:hover': { borderColor: colors.blue, bgcolor: 'rgba(2,132,199,.06)' }
+              }}
+            >
+              {prompt}
+            </Button>
+          ))}
+        </Stack>
+      </Box>
+
+      <SurfaceCard sx={{ p: 3, background: gradients.hero, color: 'white', display: { xs: 'none', lg: 'flex' }, flexDirection: 'column', justifyContent: 'space-between' }}>
+        <Box sx={{ width: 54, height: 54, borderRadius: 3, bgcolor: 'rgba(255,255,255,.16)', display: 'grid', placeItems: 'center' }}>
+          <StorageIcon />
+        </Box>
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 900, mb: 1 }}>
+            DBLearning Chat
+          </Typography>
+          <Typography sx={{ lineHeight: 1.7, color: 'rgba(255,255,255,.84)' }}>
+            Diseñado para transformar dudas sueltas en explicaciones accionables, ejemplos y material de estudio reutilizable.
+          </Typography>
+        </Box>
+      </SurfaceCard>
+    </Box>
+  )
+}
+
+function MessageBubble({ message, firstLetterUser }) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: { xs: 1.25, sm: 2 },
+        maxWidth: 920,
+        ml: message.isUser ? 'auto' : 0,
+        flexDirection: message.isUser ? 'row-reverse' : 'row'
+      }}
+    >
+      {message.isUser ? (
+        <Avatar variant="rounded" sx={{ bgcolor: colors.slate, flexShrink: 0, fontWeight: 900 }}>{firstLetterUser}</Avatar>
+      ) : (
+        <Avatar variant="rounded" sx={{ bgcolor: colors.surfaceContainer, color: colors.blue, flexShrink: 0 }}>
+          <DvrIcon />
+        </Avatar>
+      )}
+      <Box
+        sx={{
+          bgcolor: message.isUser ? colors.slate : 'white',
+          color: message.isUser ? 'white' : colors.text,
+          border: `1px solid ${message.isUser ? 'rgba(15,23,42,.12)' : colors.border}`,
+          borderRadius: message.isUser ? '18px 18px 6px 18px' : '18px 18px 18px 6px',
+          px: { xs: 2, sm: 2.5 },
+          py: { xs: 1.75, sm: 2 },
+          lineHeight: 1.75,
+          whiteSpace: 'pre-wrap',
+          overflowWrap: 'anywhere',
+          boxShadow: message.isUser ? '0 12px 32px rgba(15,23,42,.16)' : colors.shadowSoft
+        }}
+      >
+        {message.text}
+      </Box>
+    </Box>
+  )
+}
 
 function ConsultIA() {
   const {
@@ -27,7 +135,7 @@ function ConsultIA() {
   }
 
   return (
-    <PageLayout maxWidth="1120px" spacing={3}>
+    <PageLayout maxWidth="1160px" spacing={3}>
       <PageHeader
         eyebrow="Asistente inteligente"
         title="Consulta IA"
@@ -36,12 +144,12 @@ function ConsultIA() {
       />
 
       {error && (
-        <Alert severity="error" onClose={() => setError('')}>
+        <Alert severity="error" onClose={() => setError('')} sx={{ borderRadius: 3 }}>
           {error}
         </Alert>
       )}
 
-      <SurfaceCard sx={{ display: 'flex', flexDirection: 'column', minHeight: { xs: '68vh', md: '72vh' } }}>
+      <SurfaceCard sx={{ display: 'flex', flexDirection: 'column', minHeight: { xs: '70dvh', md: '72dvh' }, background: 'rgba(255,255,255,.96)' }}>
         {loading && <LinearProgress sx={{ width: '100%' }} />}
 
         <Box
@@ -55,69 +163,26 @@ function ConsultIA() {
             display: 'flex',
             flexDirection: 'column',
             gap: 2.5,
-            backgroundImage: hasMessages ? 'none' : `linear-gradient(rgba(255,255,255,.84), rgba(255,255,255,.84)), url(${dblearningchat})`,
+            backgroundImage: hasMessages ? 'none' : `linear-gradient(rgba(248,249,255,.88), rgba(248,249,255,.88)), url(${dblearningchat})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
         >
-          {!hasMessages && (
-            <Box sx={{ maxWidth: 620 }}>
-              <Typography variant="h5" sx={{ color: colors.blue, fontWeight: 700, mb: 1 }}>
-                Empieza escribiendo tu primera consulta
-              </Typography>
-              <Typography sx={{ color: colors.text, lineHeight: 1.7 }}>
-                Puedes preguntar por SQL, normalización, relaciones, claves, consultas, modelos entidad-relación o cualquier concepto del temario.
-              </Typography>
-            </Box>
-          )}
+          {!hasMessages && <AssistantEmptyState onSelectPrompt={setInputText} />}
 
           {messages.map((message, index) => (
-            <Box key={`${message.isUser ? 'user' : 'assistant'}-${index}`}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 2,
-                  maxWidth: 900,
-                  ml: message.isUser ? 'auto' : 0,
-                  flexDirection: message.isUser ? 'row-reverse' : 'row'
-                }}
-              >
-                {message.isUser ? (
-                  <Avatar variant="rounded" sx={{ bgcolor: colors.blue, flexShrink: 0 }}>{firstLetterUser}</Avatar>
-                ) : (
-                  <Avatar variant="rounded" sx={{ bgcolor: 'rgba(66, 165, 245, 0.12)', color: colors.blue, flexShrink: 0 }}>
-                    <DvrIcon />
-                  </Avatar>
-                )}
-                <Box
-                  sx={{
-                    bgcolor: message.isUser ? 'rgba(66, 165, 245, 0.1)' : 'white',
-                    color: '#37474f',
-                    border: '1px solid rgba(66, 165, 245, 0.12)',
-                    borderRadius: 3,
-                    px: 2.5,
-                    py: 2,
-                    lineHeight: 1.7,
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    boxShadow: message.isUser ? 'none' : '0 10px 30px rgba(25, 118, 210, 0.06)'
-                  }}
-                >
-                  {message.text}
-                </Box>
-              </Box>
-              {index < messages.length - 1 && <Divider sx={{ mt: 2.5 }} />}
+            <Box key={`${message.isUser ? 'user' : 'assistant'}-${index}`} className="fade-up">
+              <MessageBubble message={message} firstLetterUser={firstLetterUser} />
             </Box>
           ))}
         </Box>
 
         <Divider />
 
-        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1.5, p: { xs: 2, md: 2.5 }, bgcolor: 'white' }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1.5, p: { xs: 1.5, md: 2 }, bgcolor: 'white' }}>
           <TextField
             id="textFielConsulta"
-            label="Envía tu consulta"
+            placeholder="Escribe tu consulta sobre bases de datos..."
             size="small"
             multiline
             fullWidth
@@ -125,6 +190,12 @@ function ConsultIA() {
             onChange={(event) => setInputText(event.target.value)}
             onKeyDown={handleInputKeyDown}
             maxRows={4}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 3,
+                bgcolor: colors.surfaceDim
+              }
+            }}
           />
           <Tooltip title="Enviar consulta">
             <span>
@@ -133,12 +204,13 @@ function ConsultIA() {
                 onClick={sendMessage}
                 disabled={loading || inputText.trim() === ''}
                 sx={{
-                  bgcolor: colors.blue,
+                  bgcolor: colors.slate,
                   color: 'white',
-                  width: 44,
-                  height: 44,
-                  '&:hover': { bgcolor: colors.blueSecondary },
-                  '&.Mui-disabled': { bgcolor: 'rgba(96, 125, 139, 0.18)' }
+                  width: 46,
+                  height: 46,
+                  boxShadow: colors.shadowSoft,
+                  '&:hover': { bgcolor: colors.slateSoft, transform: 'translateY(-1px)' },
+                  '&.Mui-disabled': { bgcolor: 'rgba(100,116,139,.18)' }
                 }}
               >
                 <SendIcon />

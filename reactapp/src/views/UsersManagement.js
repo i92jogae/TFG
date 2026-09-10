@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Alert,
   Backdrop,
   Box,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -23,12 +24,17 @@ import {
   TextField,
   Typography
 } from '@mui/material'
+import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined'
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import GroupIcon from '@mui/icons-material/Group'
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
+import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import UsersTable from '../components/UsersTable'
-import { PageHeader, PageLayout, SurfaceCard } from '../components/layout/PageLayout'
+import { PageHeader, PageLayout, SectionTitle, StatCard, SurfaceCard } from '../components/layout/PageLayout'
 import { useUsersManagement } from '../hooks/useUsersManagement'
 import colors from '../config/config'
 
@@ -37,13 +43,13 @@ const modalStyle = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: { xs: 'calc(100vw - 32px)', sm: 440 },
-  maxHeight: '90vh',
+  width: { xs: 'calc(100vw - 32px)', sm: 500 },
+  maxHeight: 'calc(100dvh - 32px)',
   overflowY: 'auto',
   bgcolor: 'background.paper',
-  border: '1px solid rgba(66, 165, 245, 0.28)',
+  border: `1px solid ${colors.border}`,
   borderRadius: 4,
-  boxShadow: 24,
+  boxShadow: colors.shadowOverlay,
   p: { xs: 3, sm: 4 }
 }
 
@@ -69,6 +75,13 @@ function UsersManagement() {
   const [editForm, setEditForm] = useState(initialEditForm)
 
   const selectedUser = users.find((user) => user.id === selectedUserId)
+
+  const userStats = useMemo(() => {
+    const adminUsers = users.filter((user) => user.rol === 'Admin').length
+    const studentUsers = users.length - adminUsers
+
+    return { total: users.length, adminUsers, studentUsers }
+  }, [users])
 
   const closeDeleteModal = () => {
     setDeleteModalOpen(false)
@@ -160,18 +173,37 @@ function UsersManagement() {
   }
 
   return (
-    <PageLayout maxWidth="1180px" spacing={3}>
+    <PageLayout maxWidth="1240px" spacing={3}>
       <PageHeader
         eyebrow="Panel de administración"
         title="Usuarios"
         icon={GroupIcon}
         description="Gestiona los usuarios registrados en la plataforma, edita sus datos principales o elimina cuentas junto con su actividad asociada."
+        aside={
+          <Box sx={{ width: '100%', display: 'grid', gap: 1 }}>
+            <Chip icon={<ShieldOutlinedIcon />} label="Acceso administrador" sx={{ justifyContent: 'flex-start', bgcolor: colors.surfaceContainer, color: colors.blueDark, fontWeight: 900 }} />
+            <Typography sx={{ color: colors.textMuted, fontSize: '.9rem', lineHeight: 1.5 }}>
+              Los usuarios administradores quedan protegidos frente a edición y borrado accidental.
+            </Typography>
+          </Box>
+        }
       />
 
-      {error && <Alert severity="error" onClose={() => setError('')}>{error}</Alert>}
+      {error && <Alert severity="error" onClose={() => setError('')} sx={{ borderRadius: 3 }}>{error}</Alert>}
 
-      <SurfaceCard sx={{ p: { xs: 1.5, md: 2 }, overflowX: 'auto' }}>
-        {loading && <LinearProgress sx={{ mb: 2 }} />}
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
+        <StatCard icon={GroupIcon} label="Usuarios totales" value={userStats.total} helper="Cuentas registradas en la plataforma" />
+        <StatCard icon={PersonOutlineIcon} label="Estudiantes" value={userStats.studentUsers} helper="Usuarios genéricos con acceso a aprendizaje" tone="teal" />
+        <StatCard icon={AdminPanelSettingsOutlinedIcon} label="Administradores" value={userStats.adminUsers} helper="Cuentas con permisos de gestión" tone="amber" />
+      </Box>
+
+      <SurfaceCard sx={{ p: { xs: 2, md: 3 } }}>
+        <SectionTitle
+          title="Listado de usuarios"
+          description="Vista responsive optimizada para revisar cuentas, fechas de registro y acciones disponibles."
+          actions={<Chip label={`${users.length} registros`} sx={{ bgcolor: colors.surfaceContainer, color: colors.blueDark, fontWeight: 900 }} />}
+        />
+        {loading && <LinearProgress sx={{ mb: 2, borderRadius: 999 }} />}
         <UsersTable rows={users} abrirModalBorrar={openDeleteModal} abrirModalEditar={openEditModal} />
       </SurfaceCard>
 
@@ -183,12 +215,15 @@ function UsersManagement() {
       >
         <Fade in={editModalOpen}>
           <Box sx={modalStyle}>
-            <Typography color={colors.blue} variant="h5" sx={{ fontWeight: 700 }}>
+            <Box sx={{ width: 54, height: 54, display: 'grid', placeItems: 'center', borderRadius: 3, bgcolor: colors.surfaceContainer, color: colors.blue, mb: 2 }}>
+              <PersonOutlineIcon />
+            </Box>
+            <Typography color={colors.text} variant="h5" sx={{ fontWeight: 900 }}>
               Editar datos de usuario
             </Typography>
             {selectedUser && (
-              <Typography sx={{ color: colors.text, mt: 1, mb: 1.5 }}>
-                Usuario seleccionado: {selectedUser.nombre}
+              <Typography sx={{ color: colors.textMuted, mt: 1, mb: 1.5 }}>
+                Usuario seleccionado: <strong>{selectedUser.nombre}</strong>
               </Typography>
             )}
 
@@ -198,11 +233,11 @@ function UsersManagement() {
               fullWidth
               id="username"
               label="Nuevo nombre de usuario"
-              variant="standard"
+              variant="outlined"
               value={editForm.nombre}
               onChange={updateEditForm('nombre')}
             />
-            <FormControl fullWidth required variant="standard" sx={{ mb: 1.5 }}>
+            <FormControl fullWidth required variant="outlined" sx={{ mb: 1.5 }}>
               <InputLabel>Nueva contraseña</InputLabel>
               <Input
                 id="password"
@@ -219,7 +254,7 @@ function UsersManagement() {
               />
             </FormControl>
 
-            <FormControl fullWidth variant="standard">
+            <FormControl fullWidth variant="outlined">
               <InputLabel id="selectRolLabel">Rol</InputLabel>
               <Select
                 labelId="selectRolLabel"
@@ -234,10 +269,9 @@ function UsersManagement() {
             </FormControl>
 
             {formError && (
-              <Typography sx={{ color: '#e57373', mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <ErrorOutlineIcon />
+              <Alert severity="error" icon={<ErrorOutlineIcon />} sx={{ mt: 2, borderRadius: 3 }}>
                 {formError}
-              </Typography>
+              </Alert>
             )}
 
             <Box sx={{ display: 'flex', gap: 1.5, mt: 4, flexDirection: { xs: 'column', sm: 'row' } }}>
@@ -245,17 +279,17 @@ function UsersManagement() {
                 variant="contained"
                 onClick={handleEditUser}
                 disabled={actionLoading}
-                sx={{ flex: 1, background: colors.blue, textTransform: 'none', '&:hover': { background: colors.blue, boxShadow: 9 } }}
+                sx={{ flex: 1, background: colors.slate, borderRadius: 2, py: 1.15, textTransform: 'none', '&:hover': { background: colors.slateSoft, boxShadow: colors.shadowCard } }}
               >
-                <Typography sx={{ fontWeight: 600 }}>Confirmar</Typography>
+                <Typography sx={{ fontWeight: 850 }}>Confirmar</Typography>
               </Button>
               <Button
-                variant="contained"
+                variant="outlined"
                 onClick={closeEditModal}
                 disabled={actionLoading}
-                sx={{ flex: 1, background: colors.red, textTransform: 'none', '&:hover': { background: colors.red, boxShadow: 9 } }}
+                sx={{ flex: 1, borderColor: colors.borderStrong, color: colors.text, borderRadius: 2, py: 1.15, textTransform: 'none' }}
               >
-                <Typography sx={{ fontWeight: 600 }}>Cancelar</Typography>
+                <Typography sx={{ fontWeight: 850 }}>Cancelar</Typography>
               </Button>
             </Box>
           </Box>
@@ -270,12 +304,15 @@ function UsersManagement() {
       >
         <Fade in={deleteModalOpen}>
           <Box sx={modalStyle}>
-            <Typography color={colors.blue} variant="h5" sx={{ fontWeight: 700 }}>
-              ¿Está seguro de que quiere eliminar el usuario?
+            <Box sx={{ width: 54, height: 54, display: 'grid', placeItems: 'center', borderRadius: 3, bgcolor: 'rgba(239,68,68,.1)', color: colors.red, mb: 2 }}>
+              <DeleteOutlineIcon />
+            </Box>
+            <Typography color={colors.text} variant="h5" sx={{ fontWeight: 900 }}>
+              ¿Eliminar este usuario?
             </Typography>
             {selectedUser && (
-              <Typography sx={{ color: colors.text, mt: 1.5 }}>
-                Se eliminará la cuenta de {selectedUser.nombre}, sus consultas y sus test asociados.
+              <Typography sx={{ color: colors.textMuted, mt: 1.5, lineHeight: 1.7 }}>
+                Se eliminará la cuenta de <strong>{selectedUser.nombre}</strong>, sus consultas y sus test asociados. Esta acción no se puede deshacer desde la interfaz.
               </Typography>
             )}
             <Box sx={{ display: 'flex', gap: 1.5, mt: 4, flexDirection: { xs: 'column', sm: 'row' } }}>
@@ -283,17 +320,17 @@ function UsersManagement() {
                 variant="contained"
                 onClick={handleDeleteUser}
                 disabled={actionLoading}
-                sx={{ flex: 1, background: colors.blue, textTransform: 'none', '&:hover': { background: colors.blue, boxShadow: 9 } }}
+                sx={{ flex: 1, background: colors.red, borderRadius: 2, py: 1.15, textTransform: 'none', '&:hover': { background: colors.red, boxShadow: colors.shadowCard } }}
               >
-                <Typography sx={{ fontWeight: 600 }}>Confirmar</Typography>
+                <Typography sx={{ fontWeight: 850 }}>Eliminar</Typography>
               </Button>
               <Button
-                variant="contained"
+                variant="outlined"
                 onClick={closeDeleteModal}
                 disabled={actionLoading}
-                sx={{ flex: 1, background: colors.red, textTransform: 'none', '&:hover': { background: colors.red, boxShadow: 9 } }}
+                sx={{ flex: 1, borderColor: colors.borderStrong, color: colors.text, borderRadius: 2, py: 1.15, textTransform: 'none' }}
               >
-                <Typography sx={{ fontWeight: 600 }}>Cancelar</Typography>
+                <Typography sx={{ fontWeight: 850 }}>Cancelar</Typography>
               </Button>
             </Box>
           </Box>
@@ -301,29 +338,35 @@ function UsersManagement() {
       </Modal>
 
       <Dialog open={edited} TransitionComponent={Transition} keepMounted onClose={closeEditedDialog} fullWidth maxWidth="sm">
-        <DialogTitle color={colors.blue}>{'Se ha actualizado correctamente'}</DialogTitle>
+        <DialogTitle color={colors.text} sx={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CheckCircleOutlineIcon sx={{ color: colors.green }} />
+          Usuario actualizado
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText fontWeight="Light" color={colors.blue} fontSize="large">
+          <DialogContentText sx={{ color: colors.textMuted, lineHeight: 1.7 }}>
             La información del usuario se ha editado con éxito.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button variant="contained" onClick={closeEditedDialog} sx={{ background: colors.blue, opacity: '80%', textTransform: 'none', '&:hover': { background: colors.blue, boxShadow: 6 } }}>
-            <Typography>Continuar</Typography>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button variant="contained" onClick={closeEditedDialog} sx={{ background: colors.slate, textTransform: 'none', borderRadius: 2, '&:hover': { background: colors.slateSoft } }}>
+            Continuar
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={deleted} TransitionComponent={Transition} keepMounted onClose={closeDeletedDialog} fullWidth maxWidth="sm">
-        <DialogTitle color={colors.blue}>{'Se ha eliminado correctamente'}</DialogTitle>
+        <DialogTitle color={colors.text} sx={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CheckCircleOutlineIcon sx={{ color: colors.green }} />
+          Usuario eliminado
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText fontWeight="Light" color={colors.blue} fontSize="large">
+          <DialogContentText sx={{ color: colors.textMuted, lineHeight: 1.7 }}>
             El usuario se ha eliminado con éxito, así como sus consultas y test asociados.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button variant="contained" onClick={closeDeletedDialog} sx={{ background: colors.blue, opacity: '80%', textTransform: 'none', '&:hover': { background: colors.blue, boxShadow: 6 } }}>
-            <Typography>Continuar</Typography>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button variant="contained" onClick={closeDeletedDialog} sx={{ background: colors.slate, textTransform: 'none', borderRadius: 2, '&:hover': { background: colors.slateSoft } }}>
+            Continuar
           </Button>
         </DialogActions>
       </Dialog>

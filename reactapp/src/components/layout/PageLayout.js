@@ -1,10 +1,10 @@
 import { Box, Button, Paper, Typography } from '@mui/material'
 import MenuDB from '../Menu'
-import colors from '../../config/config'
+import colors, { gradients } from '../../config/config'
 
 export function PageLayout({ children, maxWidth = '1180px', spacing = 4 }) {
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f8fc', overflowX: 'hidden' }}>
+    <Box sx={{ minHeight: '100dvh', bgcolor: colors.background, background: gradients.soft, overflowX: 'clip' }}>
       <MenuDB />
       <Box
         component="main"
@@ -12,11 +12,12 @@ export function PageLayout({ children, maxWidth = '1180px', spacing = 4 }) {
           width: '100%',
           maxWidth,
           mx: 'auto',
-          px: { xs: 2, sm: 3, md: 5 },
+          px: { xs: 2, sm: 3, lg: 4 },
           py: { xs: 3, md: 5 },
           display: 'flex',
           flexDirection: 'column',
-          gap: spacing
+          gap: spacing,
+          minWidth: 0
         }}
       >
         {children}
@@ -28,37 +29,39 @@ export function PageLayout({ children, maxWidth = '1180px', spacing = 4 }) {
 export function PageHeader({ eyebrow, title, description, icon: Icon, actions }) {
   return (
     <Box
+      className="fade-up"
       sx={{
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
         justifyContent: 'space-between',
         alignItems: { xs: 'flex-start', md: 'center' },
-        gap: 2
+        gap: 2.5
       }}
     >
-      <Box sx={{ maxWidth: 760 }}>
+      <Box sx={{ maxWidth: 780, minWidth: 0 }}>
         {eyebrow && (
-          <Typography variant="overline" sx={{ color: colors.blue, fontWeight: 700, letterSpacing: '.08em' }}>
+          <Typography variant="overline" sx={{ color: colors.blue, fontWeight: 900, letterSpacing: '.11em' }}>
             {eyebrow}
           </Typography>
         )}
         <Typography
           variant="h3"
           sx={{
-            color: colors.blue,
+            color: colors.text,
             fontSize: { xs: '2rem', md: '2.55rem' },
-            fontWeight: 300,
+            fontWeight: 850,
             display: 'flex',
             alignItems: 'center',
             gap: 1.5,
-            mt: eyebrow ? 0.5 : 0
+            mt: eyebrow ? 0.5 : 0,
+            lineHeight: 1.05
           }}
         >
           {title}
-          {Icon && <Icon sx={{ fontSize: { xs: 34, md: 42 } }} />}
+          {Icon && <Icon sx={{ fontSize: { xs: 32, md: 40 }, color: colors.blue }} />}
         </Typography>
         {description && (
-          <Typography sx={{ color: colors.text, mt: 1.25, fontSize: { xs: '0.95rem', md: '1rem' }, lineHeight: 1.7 }}>
+          <Typography sx={{ color: colors.textMuted, mt: 1.5, fontSize: { xs: '0.98rem', md: '1.05rem' }, lineHeight: 1.75 }}>
             {description}
           </Typography>
         )}
@@ -72,12 +75,14 @@ export function SurfaceCard({ children, sx }) {
   return (
     <Paper
       elevation={0}
+      className="fade-up"
       sx={{
-        bgcolor: 'white',
-        border: '1px solid rgba(66, 165, 245, 0.16)',
+        bgcolor: 'rgba(255,255,255,.94)',
+        border: `1px solid ${colors.border}`,
         borderRadius: 4,
-        boxShadow: '0 20px 55px rgba(25, 118, 210, 0.08)',
+        boxShadow: colors.shadowCard,
         overflow: 'hidden',
+        minWidth: 0,
         ...sx
       }}
     >
@@ -89,11 +94,11 @@ export function SurfaceCard({ children, sx }) {
 export function EmptyState({ title, description, actionLabel, onAction, actionIcon }) {
   return (
     <SurfaceCard sx={{ p: { xs: 3, md: 4 } }}>
-      <Typography variant="h6" sx={{ color: colors.blue, fontWeight: 700, mb: 1 }}>
+      <Typography variant="h6" sx={{ color: colors.text, fontWeight: 850, mb: 1 }}>
         {title}
       </Typography>
       {description && (
-        <Typography sx={{ color: colors.text, mb: actionLabel ? 3 : 0, lineHeight: 1.7 }}>
+        <Typography sx={{ color: colors.textMuted, mb: actionLabel ? 3 : 0, lineHeight: 1.7 }}>
           {description}
         </Typography>
       )}
@@ -103,10 +108,12 @@ export function EmptyState({ title, description, actionLabel, onAction, actionIc
           variant="contained"
           onClick={onAction}
           sx={{
-            background: colors.blueSecondary,
+            bgcolor: colors.blue,
+            borderRadius: 2,
             textTransform: 'none',
+            fontWeight: 750,
             boxShadow: 0,
-            '&:hover': { background: colors.blue, boxShadow: 4 }
+            '&:hover': { bgcolor: colors.blueDark, boxShadow: 4 }
           }}
         >
           {actionLabel}
